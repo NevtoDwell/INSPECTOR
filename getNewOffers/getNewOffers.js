@@ -55,6 +55,8 @@ async function fetchOffers() {
       const descText = $(element).find('.tc-desc-text').text().trim();
       const price = $(element).find('.tc-price div').text().trim();
       const link = $(element).attr('href');
+      const title = $(element).closest('.offer').find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
+
       currentItems.push({
         title,
         descText,

@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const chalk = require("chalk");
 
-const userId = '1275300'; 
+const userId = '292020'; 
 const baseUrl = 'https://funpay.com/users/'; 
 const url = `${baseUrl}${userId}/`;
 
