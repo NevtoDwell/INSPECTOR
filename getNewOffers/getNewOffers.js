@@ -93,6 +93,11 @@ async function fetchOffers() {
       console.log('Новых офферов нет.');
     }
 
+      
+
+
+
+
     
 
 
