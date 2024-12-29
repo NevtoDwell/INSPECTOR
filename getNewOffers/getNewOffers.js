@@ -56,7 +56,7 @@ async function fetchOffers() {
       const price = $(element).find('.tc-price div').text().trim();
       const link = $(element).attr('href');
       currentItems.push({
-        title: 'Донат 8 Ball Pool',
+        title,
         descText,
         price,
         link,
