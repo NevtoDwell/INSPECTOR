@@ -93,8 +93,8 @@ async function fetchOffers() {
       console.log('Новых офферов нет.');
     }
 
-
     
+
 
     // Обновляем файл с текущими офферами
     fs.writeFileSync(
