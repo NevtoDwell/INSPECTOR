@@ -5,7 +5,8 @@ const chalk = require("chalk")
 
 const credentialsPath = path.join(__dirname, '..',  '..', 'api keys', 'credentials.json');
 
-// Проверяем наличие файла credentials.json
+
+
 if (!fs.existsSync(credentialsPath)) {
   console.error(`Файл credentials.json не найден по пути: ${credentialsPath}`);
   process.exit(1);
