@@ -16,7 +16,6 @@ async function fetchData() {
     const root = parse(data);
 
     const profileName = root.querySelector('div.profile h1 span.mr4')?.text?.trim() || 'Не найдено';
-
     const offers = root.querySelectorAll('div.offer').map((element) => {
 
       const categoryOffer = element.querySelector('.offer-list-title a')?.text?.trim();

@@ -12,6 +12,7 @@ if (!url) {
 }
 
 // Пути JSON-файлов
+
 const currentOffersPath = path.join(__dirname, 'currentOffers.json');
 const newOffersPath = path.join(__dirname, 'newOffers.json');
 const historyPath = path.join(__dirname, 'newOffersHistory.json');
@@ -28,6 +29,7 @@ function clearHistoryAtMidnight() {
   const hours = now.getHours();
   const minutes = now.getMinutes();
 
+  // Очищаем историю, если время 00:00
   if (hours === 0 && minutes === 0) {
     fs.writeFileSync(historyPath, JSON.stringify([], null, 2));
     console.log(chalk.red('История очищена в 00:00.'));
@@ -48,25 +50,31 @@ async function fetchOffers() {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
-    // Получаем имя профиля
-    const profileName = $('div.profile h1 span.mr4')?.text()?.trim() || 'Не найдено';
+    const profileName = $('div.profile h1 span.mr4').text().trim() || 'Не найдено';
 
     // Собираем текущие офферы
     const currentItems = [];
-    $('div.offer').each((index, element) => {
-      const categoryOffer = $(element).find('.offer-list-title a')?.text()?.trim();
-      const linkOffer = $(element).find('.offer-list-title a')?.attr('href');
 
-      const items = $(element)
-        .find('a.tc-item')
-        .map((_, item) => {
-          const titleOffer = $(item).find('.tc-desc-text')?.text()?.trim();
-          const priceOffer = $(item).find('.tc-price div')?.text()?.trim();
-          return { title: titleOffer, price: priceOffer };
-        })
-        .get();
+    $('.tc-item').each((index, element) => {
 
-      currentItems.push({ category: categoryOffer, link: linkOffer, items });
+      const now = new Date();
+      const time = now.toLocaleTimeString('ru-RU'); 
+      const date = now.toLocaleDateString('ru-RU'); 
+
+      const descText = $(element).find('.tc-desc-text').text().trim();
+      const price = $(element).find('.tc-price div').text().trim();
+      const link = $(element).attr('href');
+      const title = $(element).closest('.offer').find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
+
+      currentItems.push({
+        profileName,
+        title,
+        descText,
+        price,
+        link,
+        time,
+        date,
+      });
     });
 
     // Читаем предыдущие офферы
@@ -80,15 +88,17 @@ async function fetchOffers() {
     const isFreshStart = previousItems.length === 0;
 
     // Сравниваем и ищем новые офферы
-    const newOffers = currentItems.filter((item) =>
-      !previousItems.some((prev) => prev.link === item.link)
+    const newOffers = currentItems.filter(item =>
+      !previousItems.some(prev => prev.link === item.link)
     );
 
     // Сохраняем новые офферы
     if (!isFreshStart && newOffers.length > 0) {
+      // Добавляем новые офферы в историю
       const updatedHistory = [...historyData, ...newOffers];
       fs.writeFileSync(historyPath, JSON.stringify(updatedHistory, null, 2));
 
+      // Обновляем файл newOffers.json
       fs.writeFileSync(newOffersPath, JSON.stringify(newOffers, null, 2));
       console.log(`Новые офферы (${newOffers.length}) сохранены в ${newOffersPath} и добавлены в историю.`);
     } else if (isFreshStart) {
@@ -100,11 +110,9 @@ async function fetchOffers() {
     // Обновляем файл с текущими офферами
     fs.writeFileSync(
       currentOffersPath,
-      JSON.stringify({ profileName, offers: currentItems }, null, 2)
+      JSON.stringify({ offers: currentItems }, null, 2)
     );
 
-    console.log(chalk.green(`Имя профиля: ${profileName}`));
-    console.log(chalk.green('Данные успешно сохранены.'));
   } catch (error) {
     console.error('Ошибка при извлечении данных:', error.message);
   }
