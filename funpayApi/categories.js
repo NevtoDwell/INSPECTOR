@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { getConst } from '../utils/constants.js';
 import { log } from '../utils/logger.js';
 import { headers } from './funpayApi.js';
@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-async function getAllCategories(id) {
+async function getAllCategories() {
     let result = [];
     try {
         const options = {
@@ -16,7 +16,7 @@ async function getAllCategories(id) {
             headers: headers
         };
 
-        const resp = await fetch(`${getConst('api')}/users/${id}/`, options);
+        const resp = await fetch(`${getConst('api')}`, options);
         const body = await resp.text();
 
         const $ = cheerio.load(body);
@@ -39,9 +39,9 @@ async function getAllCategories(id) {
     return result;
 }
 
-async function saveCategoriesData(userId) {
+async function saveCategoriesData() {
     try {
-        const categoriesData = await getAllCategories(userId);
+        const categoriesData = await getAllCategories();
         
         const jsonPath = path.join(__dirname, 'categories.json');
         await fs.writeFile(jsonPath, JSON.stringify(categoriesData, null, 2));
