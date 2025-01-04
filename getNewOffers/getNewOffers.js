@@ -13,9 +13,9 @@ if (!url) {
 
 // Пути JSON-файлов
 
-const currentOffersPath = path.join(__dirname, 'currentOffers.json');
-const newOffersPath = path.join(__dirname, 'newOffers.json');
-const historyPath = path.join(__dirname, 'newOffersHistory.json');
+const currentOffersPath = path.join(__dirname, '..', '..', 'data', 'currentOffers.json');
+const newOffersPath = path.join(__dirname, '..', '..', 'data', 'newOffers.json');
+const historyPath = path.join(__dirname, '..', '..', 'data', 'newOffersHistory.json');
 
 function ensureFileExists(filePath, initialContent = '[]') {
   if (!fs.existsSync(filePath)) {

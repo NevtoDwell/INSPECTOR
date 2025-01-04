@@ -1,11 +1,9 @@
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
-const chalk = require("chalk")
+const chalk = require("chalk");
 
 const credentialsPath = path.join(__dirname, '..',  '..', 'api keys', 'credentials.json');
-
-
 
 if (!fs.existsSync(credentialsPath)) {
   console.error(`Файл credentials.json не найден по пути: ${credentialsPath}`);
@@ -27,23 +25,24 @@ const sheets = google.sheets({ version: 'v4', auth });
 const spreadsheetId = '1vMm_FHnUp1xH-07OoOr2BQIRKkOoVG0r1yKff82xVUw';
 const range = 'NEW OFFERS!A1';
 
+const newOffersHistoryPath = path.join(__dirname, '..', '..', 'data', 'newOffersHistory.json');
+
 async function writeToSheet() {
   try {
     console.log(chalk.yellow('Начало работы с файлом newOffersHistory.json...'));
 
-    if (!fs.existsSync('getNewOffers/newOffersHistory.json')) {
-      console.error('Файл newOffers.json не найден.');
+    if (!fs.existsSync(newOffersHistoryPath)) {
+      console.error(`Файл newOffersHistory.json не найден по пути: ${newOffersHistoryPath}`);
       process.exit(1);
     }
 
-    const offersData = JSON.parse(fs.readFileSync('getNewOffers/newOffersHistory.json', 'utf8'));
-    console.log(`Файл newOffers.json успешно загружен. Найдено офферов: ${offersData.length}`);
+    const offersData = JSON.parse(fs.readFileSync(newOffersHistoryPath, 'utf8'));
+    console.log(`Файл newOffersHistory.json успешно загружен. Найдено офферов: ${offersData.length}`);
 
     const values = [
       ['CATEGORY', 'PROFILE NAME', 'TEXT OFFER', 'PRICE', 'LINK', 'TIME', 'DATE'], // Добавлен новый заголовок
     ];
     
-    // Предполагается, что каждый оффер содержит поле profileName
     offersData.forEach((offer) => {
       values.push([
         offer.title,
@@ -138,6 +137,6 @@ async function applyStyles() {
     } catch (error) {
       console.error('Ошибка при применении стилей:', error);
     }
-  }
+}
 
 writeToSheet();
