@@ -1,0 +1,13 @@
+{
+  "name": "funpay-form-submitter",
+  "version": "1.0.0",
+  "description": "Автоматизация отправки форм на FunPay",
+  "main": "form_data_processor.js",
+  "scripts": {
+    "start": "node form_data_processor.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "form-data": "^4.0.0"
+  }
+}

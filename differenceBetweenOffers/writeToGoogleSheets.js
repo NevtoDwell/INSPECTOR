@@ -1,18 +1,22 @@
-const { google } = require('googleapis');
-const fs = require('fs');
-const path = require('path');
+import { google } from 'googleapis';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function writeToGoogleSheets() {
   try {
-    const differencesPath = path.join(__dirname, 'differences.json');
+    const differencesPath = join(__dirname, 'differences.json');
     const differences = JSON.parse(fs.readFileSync(differencesPath, 'utf-8'));
 
     // Читаем имена профилей
-    const profileNamesPath = path.join(__dirname, 'profile_names.json');
+    const profileNamesPath = join(__dirname, 'profile_names.json');
     const profileNames = JSON.parse(fs.readFileSync(profileNamesPath, 'utf-8'));
 
     const auth = new google.auth.GoogleAuth({
-      keyFile: path.join(__dirname, '..', '..', 'api keys', 'credentials.json'),
+      keyFile: join(__dirname, '..', '..', 'api keys', 'credentials.json'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
@@ -29,8 +33,6 @@ async function writeToGoogleSheets() {
       `Price (${profileNames.user_2})`, 
       'Difference',
       'FunPay Category ID', // ID категории на FunPay
-      'FunPay Offer ID',    // ID предложения
-      'Publish Status'      // Статус публикации
     ];
     const rows = differences.map(item => {
       if (item.differenceType === '✅✅✅ SAME') {
@@ -42,9 +44,7 @@ async function writeToGoogleSheets() {
           item.price1Rusya,
           item.price2BestRmt,
           item.priceDifference,
-          '',  // FunPay Category ID - пустая ячейка
-          '',  // FunPay Offer ID - пустая ячейка
-          ''   // Publish Status - пустая ячейка
+          item.node_id || '',  // FunPay Category ID
         ];
       } else {
         return [
@@ -55,9 +55,7 @@ async function writeToGoogleSheets() {
           item.price,
           '',
           '',
-          '',  // FunPay Category ID - пустая ячейка
-          '',  // FunPay Offer ID - пустая ячейка
-          ''   // Publish Status - пустая ячейка
+          item.node_id || '',  // FunPay Category ID
         ];
       }
     });
@@ -95,17 +93,79 @@ async function writeToGoogleSheets() {
 
     await sheets.spreadsheets.values.clear({
       spreadsheetId,
-      range: 'DIFFERENCE!A:J',
+      range: 'DIFFERENCE!A:H',
     });
 
-    // Запись данных
-    await sheets.spreadsheets.values.append({
+    // Записываем данные в лист DIFFERENCE
+    await sheets.spreadsheets.values.update({
       spreadsheetId,
       range: 'DIFFERENCE!A1',
       valueInputOption: 'RAW',
+      resource: { values: [headers, ...rows] },
+    });
+
+    // Читаем офферы для добавления
+    const offersToAddPath = join(__dirname, 'offers_to_add.json');
+    const offersToAdd = JSON.parse(fs.readFileSync(offersToAddPath, 'utf-8'));
+
+    // Подготовка данных для листа NEED ADD
+    const needAddHeaders = [
+      'Difference Type', 
+      'Title', 
+      'Description', 
+      'Price', 
+      'FunPay Category ID'
+    ];
+    const needAddRows = offersToAdd.map(item => [
+      item.differenceType,
+      item.title,
+      item.descText.split(',')[0],
+      item.price,
+      item.node_id || ''
+    ]);
+
+    // Находим лист NEED ADD
+    const needAddSheet = sheetsResponse.data.sheets.find(
+      sheet => sheet.properties.title === 'NEED ADD'
+    );
+    
+    if (!needAddSheet) {
+      throw new Error('NEED ADD sheet not found');
+    }
+
+    const needAddSheetId = needAddSheet.properties.sheetId;
+
+    // Очистка форматирования и данных для листа NEED ADD
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
       resource: {
-        values: [headers, ...rows],
+        requests: [
+          {
+            updateCells: {
+              range: {
+                sheetId: needAddSheetId,
+                startRowIndex: 0,
+                startColumnIndex: 0,
+              },
+              fields: 'userEnteredFormat',
+            },
+          },
+        ],
       },
+    });
+
+    // Очистка данных листа NEED ADD
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range: 'NEED ADD',
+    });
+
+    // Записываем данные в лист NEED ADD
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: 'NEED ADD!A1:E',
+      valueInputOption: 'RAW',
+      resource: { values: [needAddHeaders, ...needAddRows] },
     });
 
     // Форматирование
@@ -275,4 +335,4 @@ async function writeToGoogleSheets() {
   }
 }
 
-writeToGoogleSheets(); 
+writeToGoogleSheets();

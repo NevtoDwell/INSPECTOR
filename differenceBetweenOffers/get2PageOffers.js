@@ -1,7 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
-const cheerio = require('cheerio');
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const urls = [
   { url: 'https://funpay.com/users/3194633/', file: 'user_1.json' },
@@ -16,7 +20,7 @@ async function fetchOffers(url, fileName) {
     const profileName = $('div.profile h1 span.mr4').text().trim() || 'Not found';
     
     let profileNames = {};
-    const profileNamesPath = path.join(__dirname, 'profile_names.json');
+    const profileNamesPath = join(__dirname, 'profile_names.json');
     
     if (fs.existsSync(profileNamesPath)) {
       profileNames = JSON.parse(fs.readFileSync(profileNamesPath, 'utf-8'));
@@ -40,16 +44,19 @@ async function fetchOffers(url, fileName) {
       const descText = fullDescText.split(',')[0];
       const price = $(element).find('.tc-price div').text().trim();
       const title = $(element).closest('.offer').find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
+      const categoryLink = $(element).closest('.offer').find('.offer-list-title a').attr('href') || '';
+      const node_id = categoryLink.split('/').filter(Boolean).pop() || '';
 
       currentItems.push({
         profileName,
         title,
         descText,
         price,
+        node_id
       });
     });
 
-    const filePath = path.join(__dirname, fileName);
+    const filePath = join(__dirname, fileName);
     fs.writeFileSync(filePath, JSON.stringify(currentItems, null, 2), 'utf-8');
     console.log(`Данные успешно сохранены в файл ${fileName}`);
   } catch (error) {

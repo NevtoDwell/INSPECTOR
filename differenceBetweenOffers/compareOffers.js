@@ -1,5 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Функция для чтения JSON-файла
 function readJSON(filePath) {
@@ -64,6 +68,7 @@ function findUniqueDifferences(array1, array2) {
         price1Rusya: item1.price,
         price2BestRmt: matchingItem.price,
         priceDifference: `${priceDifference} ₽`,
+        node_id: item1.node_id || ''
       });
     } else {
       differences.push({
@@ -71,6 +76,7 @@ function findUniqueDifferences(array1, array2) {
         title: item1.title,
         descText: getTextBeforeComma(item1.descText),
         price: item1.price,
+        node_id: item1.node_id || ''
       });
     }
 
@@ -87,6 +93,7 @@ function findUniqueDifferences(array1, array2) {
         title: item2.title,
         descText: getTextBeforeComma(item2.descText),
         price: item2.price,
+        node_id: item2.node_id || ''
       });
     }
   });
@@ -95,26 +102,29 @@ function findUniqueDifferences(array1, array2) {
 }
 
 // Основной процесс
-function compareFiles() {
-  const file1Path = path.join(__dirname, 'user_1.json');
-  const file2Path = path.join(__dirname, 'user_2.json');
-  const outputPath = path.join(__dirname, 'differences.json');
-
-  const data1 = readJSON(file1Path);
-  const data2 = readJSON(file2Path);
-
-  // Фильтруем данные только для "Алмазы AFK Arena"
-  // const filterName = "Донат Brawl Stars"
+async function compareFiles() {
+  const user1Data = readJSON(join(__dirname, 'user_1.json'));
+  const user2Data = readJSON(join(__dirname, 'user_2.json'));
   
-  // const filteredData1 = filterByTitle(data1, filterName);
-  // const filteredData2 = filterByTitle(data2, filterName);
-
-  // Находим различия
-  const differences = findUniqueDifferences(data1, data2);
-
-  // Записываем различия в файл
-  fs.writeFileSync(outputPath, JSON.stringify(differences, null, 2), 'utf-8');
-  console.log(`Различия сохранены в файл differences.json`);
+  const differences = findUniqueDifferences(user1Data, user2Data);
+  
+  // Сохраняем все различия
+  fs.writeFileSync(
+    join(__dirname, 'differences.json'),
+    JSON.stringify(differences, null, 2),
+    'utf-8'
+  );
+  
+  // Создаем отдельный файл для офферов, которые нужно добавить
+  const offersToAdd = differences.filter(item => item.differenceType === '❌❌❌ ADD ME');
+  fs.writeFileSync(
+    join(__dirname, 'offers_to_add.json'),
+    JSON.stringify(offersToAdd, null, 2),
+    'utf-8'
+  );
+  
+  console.log('Различия сохранены в файл differences.json');
+  console.log('Офферы для добавления сохранены в файл offers_to_add.json');
 }
 
 compareFiles();
