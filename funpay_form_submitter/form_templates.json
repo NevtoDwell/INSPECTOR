@@ -1,0 +1,31 @@
+{
+  "1142": {
+    "name": "Arknights",
+    "template": {
+      "fields[type]": "Паки",
+      "fields[summary][ru]": true,
+      "fields[summary][en]": true,
+      "fields[desc][ru]": true,
+      "fields[desc][en]": true,
+      "fields[payment_msg][ru]": " ",
+      "fields[payment_msg][en]": " ",
+      "amount": "999"
+    }
+  },
+  "1560": {
+    "name": "Asphalt",
+    "template": {
+      "server_id": "9074",
+      "fields[method]": "С заходом на аккаунт",
+      "fields[summary][ru]": true,
+      "fields[summary][en]": "",
+      "fields[desc][ru]": true,
+      "fields[desc][en]": "",
+      "fields[payment_msg][ru]": " ",
+      "fields[payment_msg][en]": " ",
+      "fields[images]": "",
+      "deactivate_after_sale": ""
+    },
+    "priceModifier": 0.91 // 1/1.10 для уменьшения цены на 10%
+  }
+}

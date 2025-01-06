@@ -9,9 +9,7 @@ const __dirname = dirname(__filename);
 
 const urls = [
   { url: 'https://funpay.com/users/3194633/', file: 'user_1.json' },
-  { url: 'https://funpay.com/users/292020/', file: 'user_2.json' },
-  { url: 'https://funpay.com/en/users/3194633/', file: 'user_1_en.json' },
-  { url: 'https://funpay.com/en/users/292020/', file: 'user_2_en.json' }
+  { url: 'https://funpay.com/users/292020/', file: 'user_2.json' }
 ];
 
 async function fetchOffers(url, fileName) {
@@ -42,7 +40,14 @@ async function fetchOffers(url, fileName) {
 
     // Получаем английскую версию URL
     const enUrl = url.replace('https://funpay.com/', 'https://funpay.com/en/');
-    const { data: enData } = await axios.get(enUrl);
+    let enData;
+    try {
+      const enResponse = await axios.get(enUrl);
+      enData = enResponse.data;
+    } catch (error) {
+      console.log(`Warning: Could not fetch English version for ${url}. Using original data.`);
+      enData = data;
+    }
     const $en = cheerio.load(enData);
 
     const currentItems = await Promise.all(

@@ -13,25 +13,6 @@ class FunPayFormProcessor {
         // Чтение описаний из файлов при инициализации
         this.descRu = fs.readFileSync(join(__dirname, 'desc_ru.txt'), 'utf-8').trim();
         this.descEn = fs.readFileSync(join(__dirname, 'desc_en.txt'), 'utf-8').trim();
-
-        // Путь к файлу с структурами форм
-        this.formStructuresPath = path.join(__dirname, 'form_structures.json');
-        
-        // Загружаем существующие структуры форм или создаем новый объект
-        try {
-            this.formStructures = JSON.parse(fs.readFileSync(this.formStructuresPath, 'utf8'));
-        } catch (error) {
-            this.formStructures = {};
-        }
-    }
-
-    async saveFormStructures() {
-        try {
-            fs.writeFileSync(this.formStructuresPath, JSON.stringify(this.formStructures, null, 2), 'utf8');
-            console.log(`\n💾 Структуры форм сохранены в ${this.formStructuresPath}`);
-        } catch (error) {
-            console.error(`❌ Ошибка при сохранении структур форм:`, error);
-        }
     }
 
     formatDescription(text) {
@@ -223,80 +204,6 @@ class FunPayFormProcessor {
         }
     }
 
-    async getFormStructure(nodeId) {
-        try {
-            const response = await axios.get(`https://funpay.com/lots/offerEdit?node=${nodeId}`, {
-                headers: {
-                    'Cookie': this.config.cookies,
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                }
-            });
-
-            // Получаем все input и select поля из формы
-            const formFields = {};
-            const html = response.data;
-            
-            // Ищем все input поля
-            const inputMatches = html.match(/<input[^>]*>/g) || [];
-            inputMatches.forEach(input => {
-                const nameMatch = input.match(/name="([^"]+)"/);
-                const valueMatch = input.match(/value="([^"]*)"/);
-                if (nameMatch) {
-                    formFields[nameMatch[1]] = valueMatch ? valueMatch[1] : '';
-                }
-            });
-
-            // Ищем все select поля
-            const selectMatches = html.match(/<select[^>]*>[\s\S]*?<\/select>/g) || [];
-            selectMatches.forEach(select => {
-                const nameMatch = select.match(/name="([^"]+)"/);
-                if (nameMatch) {
-                    const selectedOption = select.match(/<option[^>]*selected[^>]*>([^<]*)<\/option>/);
-                    formFields[nameMatch[1]] = selectedOption ? selectedOption[1] : '';
-                }
-            });
-
-            // Ищем все textarea
-            const textareaMatches = html.match(/<textarea[^>]*>[\s\S]*?<\/textarea>/g) || [];
-            textareaMatches.forEach(textarea => {
-                const nameMatch = textarea.match(/name="([^"]+)"/);
-                if (nameMatch) {
-                    const content = textarea.match(/<textarea[^>]*>([\s\S]*?)<\/textarea>/);
-                    formFields[nameMatch[1]] = content ? content[1].trim() : '';
-                }
-            });
-
-            // Добавляем структуру формы в общий объект
-            this.formStructures[nodeId] = {
-                name: this.getGameName(html) || `Game ${nodeId}`, // Пытаемся получить название игры
-                template: formFields
-            };
-
-            // Сохраняем обновленные структуры
-            await this.saveFormStructures();
-
-            return formFields;
-        } catch (error) {
-            console.error(`❌ Ошибка при получении структуры формы для категории ${nodeId}:`, error.message);
-            return null;
-        }
-    }
-
-    getGameName(html) {
-        try {
-            // Пытаемся найти название игры в HTML
-            const titleMatch = html.match(/<title>([^<]*)<\/title>/);
-            if (titleMatch) {
-                const title = titleMatch[1];
-                // Очищаем название от "FunPay" и прочего
-                return title.replace('FunPay:', '').replace('- добавление лота', '').trim();
-            }
-        } catch (error) {
-            console.error('Ошибка при получении названия игры:', error);
-        }
-        return null;
-    }
-
     async processAllOffers() {
         try {
             const offers = await this.readOffersToAdd();
@@ -307,9 +214,6 @@ class FunPayFormProcessor {
             }
 
             console.log(`🚀 Начинаем обработку ${offers.length} офферов`);
-
-            // Кэш для структур форм
-            const formStructureCache = {};
 
             for (const [index, offer] of offers.entries()) {
                 console.log(`\n📦 Обработка оффера ${index + 1}/${offers.length}`);
@@ -323,44 +227,63 @@ class FunPayFormProcessor {
                 console.log(`\x1b[32mОписание (EN): ${offer.descTextEn}\x1b[0m`);
                 console.log(`\x1b[32mСсылка на оффер: ${offer.offerLink}\x1b[0m`);
 
-                // Получаем структуру формы из кэша или с сервера
-                if (!formStructureCache[offer.node_id]) {
-                    formStructureCache[offer.node_id] = await this.getFormStructure(offer.node_id);
-                }
-
+                // Определяем формат данных в зависимости от node_id
                 let formData;
-                const formStructure = formStructureCache[offer.node_id];
-
-                if (!formStructure) {
-                    console.log(`⚠️ Пропуск оффера: не удалось получить структуру формы для ${offer.node_id}`);
-                    continue;
-                }
-
-                // Базовые поля
-                formData = {
-                    ...formStructure,
-                    csrf_token: this.config.csrf_token,
-                    offer_id: '',
-                    node_id: offer.node_id,
-                    'fields[summary][ru]': this.formatDescription(offer.descText),
-                    'fields[summary][en]': offer.descTextEn ? this.formatDescription(offer.descTextEn) : '',
-                    'fields[desc][ru]': this.descRu,
-                    'fields[desc][en]': this.descEn,
-                    'fields[payment_msg][ru]': ' ',
-                    'fields[payment_msg][en]': ' ',
-                    active: 'on'
-                };
-
-                // Специфичная обработка для разных категорий
-                if (offer.node_id === "1560") { //Asphalt
-                    const originalPrice = parseFloat(offer.price.replace(/[^\d.]/g, ''));
-                    formData.price = Math.round(originalPrice / 1.10);
+                
+                if (offer.node_id === "1142") { //Arknights
+                    formData = {
+                        csrf_token: this.config.csrf_token,
+                        offer_id: '',
+                        node_id: offer.node_id,
+                        location: '',
+                        deleted: '',
+                        'fields[type]': 'Паки',
+                        'fields[summary][ru]': this.formatDescription(offer.descText),
+                        'fields[summary][en]': this.formatDescription(offer.descTextEn),
+                        'fields[desc][ru]': this.descRu,
+                        'fields[desc][en]': this.descEn,
+                        'fields[payment_msg][ru]': ' ',
+                        'fields[payment_msg][en]': ' ',
+                        price: offer.price, 
+                        amount: '999',
+                        active: 'on'
+                    };
+                } else if (offer.node_id === "1560") { //Asphalt
+                    // Увеличиваем цену на 10%
+                    const originalPrice = parseFloat(offer.price.replace(/[^\d.]/g, '')); // Убираем все символы кроме цифр и точки
+                    const increasedPrice = Math.round(originalPrice / 1.10);
                     
                     console.log(' 💰 Исходная строка цены:', offer.price);
                     console.log(' 💰 Очищенная цена:', originalPrice);
-                    console.log(' 💰 Рассчитанная цена:', formData.price);
-                } else {
-                    formData.price = parseFloat(offer.price.replace(/[^\d.]/g, ''));
+                    console.log(' 💰 Рассчитанная цена:', increasedPrice);
+
+                    formData = {
+                        csrf_token: this.config.csrf_token,
+                        offer_id: '',
+                        node_id: offer.node_id,
+                        location: '',
+                        deleted: '',
+                        server_id: '9074',
+                        'fields[method]': 'С заходом на аккаунт',
+                        'fields[summary][ru]': this.formatDescription(offer.descText),
+                        'fields[summary][en]': '',
+                        'fields[desc][ru]': this.descRu,
+                        'fields[desc][en]': '',
+                        'fields[payment_msg][ru]': ' ',
+                        'fields[payment_msg][en]': ' ',
+                        'fields[images]': '',
+                        price: increasedPrice,
+                        deactivate_after_sale: '',
+                        active: 'on'
+                    };
+
+                    // Логируем данные формы
+                    console.log(' 📝 Данные формы:', JSON.stringify(formData, null, 2));
+                }
+
+                if (!formData) {
+                    console.log(`⚠️ Пропуск оффера: неподдерживаемый node_id ${offer.node_id}`);
+                    continue;
                 }
 
                 try {
@@ -395,7 +318,7 @@ class FunPayFormProcessor {
     async main() {
         try {
             const processor = new FunPayFormProcessor(
-                path.join(__dirname, '../differenceBetweenOffers/offers_to_add.json'),
+                path.join(__dirname, 'offers_to_add.json'),
                 path.join(__dirname, 'config.json')
             );
 
