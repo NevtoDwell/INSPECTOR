@@ -110,14 +110,12 @@ async function writeToGoogleSheets() {
 
     // Подготовка данных для листа NEED ADD
     const needAddHeaders = [
-      'Difference Type', 
       'Title', 
       'Description', 
       'Price', 
       'FunPay Category ID'
     ];
     const needAddRows = offersToAdd.map(item => [
-      item.differenceType,
       item.title,
       item.descText.split(',')[0],
       item.price,
@@ -163,7 +161,7 @@ async function writeToGoogleSheets() {
     // Записываем данные в лист NEED ADD
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: 'NEED ADD!A1:E',
+      range: 'NEED ADD!A1:D',
       valueInputOption: 'RAW',
       resource: { values: [needAddHeaders, ...needAddRows] },
     });
@@ -321,6 +319,28 @@ async function writeToGoogleSheets() {
           },
         });
       }
+    });
+
+    // Добавляем форматирование для всех ячеек в NEED ADD
+    requests.push({
+      repeatCell: {
+        range: {
+          sheetId: needAddSheetId,
+          startRowIndex: 1, // Начинаем с первой строки после заголовка
+          endRowIndex: needAddRows.length + 1,
+          startColumnIndex: 0,
+          endColumnIndex: 4, // Теперь у нас 4 столбца вместо 5
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 1, green: 0.8, blue: 0.8 },
+            verticalAlignment: 'MIDDLE',
+            textFormat: { fontSize: 10 },
+            wrapStrategy: 'WRAP',
+          },
+        },
+        fields: 'userEnteredFormat(backgroundColor,verticalAlignment,textFormat,wrapStrategy)',
+      },
     });
 
     // Применяем форматирование

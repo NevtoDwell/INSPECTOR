@@ -47,12 +47,13 @@ function findUniqueDifferences(array1, array2) {
 
   array1.forEach((item1) => {
     const cleanedDesc1 = cleanText(item1.descText);
+    const key1 = `${cleanedDesc1}_${item1.node_id}`; // Добавляем node_id к ключу
 
-    if (processedDescriptions.has(cleanedDesc1)) return;
+    if (processedDescriptions.has(key1)) return;
 
     const matchingItem = array2.find((item2) => {
       const cleanedDesc2 = cleanText(item2.descText);
-      return cleanedDesc1 === cleanedDesc2;
+      return cleanedDesc1 === cleanedDesc2 && item1.node_id === item2.node_id; // Проверяем совпадение node_id
     });
 
     if (matchingItem) {
@@ -65,35 +66,44 @@ function findUniqueDifferences(array1, array2) {
         title: item1.title,
         descText1: getTextBeforeComma(item1.descText),
         descText2: getTextBeforeComma(matchingItem.descText),
+        descTextEn1: item1.descTextEn || '',
+        descTextEn2: matchingItem.descTextEn || '',
         price1Rusya: item1.price,
         price2BestRmt: matchingItem.price,
         priceDifference: `${priceDifference} ₽`,
-        node_id: item1.node_id || ''
+        node_id: item1.node_id || '',
+        offerLink1: item1.offerLink || '',
+        offerLink2: matchingItem.offerLink || ''
       });
     } else {
       differences.push({
         differenceType: '❌❌❌ ADD ME',
         title: item1.title,
         descText: getTextBeforeComma(item1.descText),
+        descTextEn: item1.descTextEn || '',
         price: item1.price,
-        node_id: item1.node_id || ''
+        node_id: item1.node_id || '',
+        offerLink: item1.offerLink || ''
       });
     }
 
-    processedDescriptions.add(cleanedDesc1);
+    processedDescriptions.add(key1);
   });
 
   // Проверяем офферы, которых нет у первого пользователя
   array2.forEach((item2) => {
     const cleanedDesc2 = cleanText(item2.descText);
+    const key2 = `${cleanedDesc2}_${item2.node_id}`; // Добавляем node_id к ключу
 
-    if (!processedDescriptions.has(cleanedDesc2)) {
+    if (!processedDescriptions.has(key2)) {
       differences.push({
         differenceType: '➕➕➕ ADDITIONAL LOT',
         title: item2.title,
         descText: getTextBeforeComma(item2.descText),
+        descTextEn: item2.descTextEn || '',
         price: item2.price,
-        node_id: item2.node_id || ''
+        node_id: item2.node_id || '',
+        offerLink: item2.offerLink || ''
       });
     }
   });
@@ -115,8 +125,18 @@ async function compareFiles() {
     'utf-8'
   );
   
-  // Создаем отдельный файл для офферов, которые нужно добавить
-  const offersToAdd = differences.filter(item => item.differenceType === '❌❌❌ ADD ME');
+  // Создаем список офферов для добавления
+  const offersToAdd = differences
+    .filter(diff => diff.differenceType === '❌❌❌ ADD ME')
+    .map(diff => ({
+      title: diff.title,
+      descText: diff.descText,
+      descTextEn: diff.descTextEn || '',
+      price: diff.price,
+      node_id: diff.node_id,
+      offerLink: diff.offerLink || ''
+    }));
+  
   fs.writeFileSync(
     join(__dirname, 'offers_to_add.json'),
     JSON.stringify(offersToAdd, null, 2),

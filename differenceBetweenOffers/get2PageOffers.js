@@ -9,7 +9,9 @@ const __dirname = dirname(__filename);
 
 const urls = [
   { url: 'https://funpay.com/users/3194633/', file: 'user_1.json' },
-  { url: 'https://funpay.com/users/292020/', file: 'user_2.json' }
+  { url: 'https://funpay.com/users/292020/', file: 'user_2.json' },
+  { url: 'https://funpay.com/en/users/3194633/', file: 'user_1_en.json' },
+  { url: 'https://funpay.com/en/users/292020/', file: 'user_2_en.json' }
 ];
 
 async function fetchOffers(url, fileName) {
@@ -38,23 +40,38 @@ async function fetchOffers(url, fileName) {
       'utf-8'
     );
 
-    const currentItems = [];
-    $('.tc-item').each((index, element) => {
-      const fullDescText = $(element).find('.tc-desc-text').text().trim();
-      const descText = fullDescText.split(',')[0];
-      const price = $(element).find('.tc-price div').text().trim();
-      const title = $(element).closest('.offer').find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
-      const categoryLink = $(element).closest('.offer').find('.offer-list-title a').attr('href') || '';
-      const node_id = categoryLink.split('/').filter(Boolean).pop() || '';
+    // Получаем английскую версию URL
+    const enUrl = url.replace('https://funpay.com/', 'https://funpay.com/en/');
+    const { data: enData } = await axios.get(enUrl);
+    const $en = cheerio.load(enData);
 
-      currentItems.push({
-        profileName,
-        title,
-        descText,
-        price,
-        node_id
-      });
-    });
+    const currentItems = await Promise.all(
+      $('.tc-item').map(async (index, element) => {
+        const fullDescText = $(element).find('.tc-desc-text').text().trim();
+        const descText = fullDescText.split(',')[0];
+        const price = $(element).find('.tc-price div').text().trim();
+        const title = $(element).closest('.offer').find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
+        const categoryLink = $(element).closest('.offer').find('.offer-list-title a').attr('href') || '';
+        const node_id = categoryLink.split('/').filter(Boolean).pop() || '';
+        const offerLink = $(element).attr('href') || '';
+        const offerId = offerLink.split('id=')[1];
+
+        // Получаем описание с английской страницы по ID
+        const enOfferSelector = `.tc-item[href*="id=${offerId}"]`;
+        const enElement = $en(enOfferSelector);
+        const descTextEn = enElement.find('.tc-desc-text').text().trim().split(',')[0];
+
+        return {
+          profileName,
+          title,
+          descText,
+          descTextEn,
+          price,
+          node_id,
+          offerLink
+        };
+      }).get()
+    );
 
     const filePath = join(__dirname, fileName);
     fs.writeFileSync(filePath, JSON.stringify(currentItems, null, 2), 'utf-8');
@@ -65,9 +82,7 @@ async function fetchOffers(url, fileName) {
 }
 
 async function main() {
-  for (const { url, file } of urls) {
-    await fetchOffers(url, file);
-  }
+  await Promise.all(urls.map(async ({ url, file }) => fetchOffers(url, file)));
 }
 
 main();

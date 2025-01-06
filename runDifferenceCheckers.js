@@ -11,13 +11,16 @@ const differenceFolderPath = join(__dirname, 'differenceBetweenOffers');
 
 async function runDifferenceCheckers() {
     try {
-        const files = readdirSync(differenceFolderPath)
-            .filter(file => file.endsWith('.js'))
-            .map(file => join(differenceFolderPath, file));
+        // Определяем точный порядок запуска
+        const scriptsToRun = [
+            join(differenceFolderPath, 'get2PageOffers.js'),
+            join(differenceFolderPath, 'compareOffers.js'),
+            join(differenceFolderPath, 'writeToGoogleSheets.js')
+        ];
 
-        console.log(chalk.blue(`Найдено ${files.length} скриптов для проверки различий`));
+        console.log(chalk.blue(`Будет запущено ${scriptsToRun.length} скриптов в определенном порядке`));
 
-        for (const file of files) {
+        for (const file of scriptsToRun) {
             console.log(chalk.yellow(`Запуск: ${file}`));
             
             const childProcess = spawn('node', [file], { 
