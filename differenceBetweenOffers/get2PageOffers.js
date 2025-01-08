@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import chalk from 'chalk';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,11 +15,19 @@ const urls = [
 
 async function fetchOffers(url, fileName) {
   try {
-    const { data } = await axios.get(url);
-    const $ = cheerio.load(data);
+    // Параллельная загрузка русской и английской версий
+    const enUrl = url.replace('https://funpay.com/', 'https://funpay.com/en/');
+    const [ruResponse, enResponse] = await Promise.all([
+      axios.get(url),
+      axios.get(enUrl).catch(() => ({ data: null }))
+    ]);
+
+    const $ = cheerio.load(ruResponse.data);
+    const $en = enResponse.data ? cheerio.load(enResponse.data) : $;
 
     const profileName = $('div.profile h1 span.mr4').text().trim() || 'Not found';
     
+    // Обновляем profile_names
     let profileNames = {};
     const profileNamesPath = join(__dirname, 'profile_names.json');
     
@@ -26,11 +35,7 @@ async function fetchOffers(url, fileName) {
       profileNames = JSON.parse(fs.readFileSync(profileNamesPath, 'utf-8'));
     }
 
-    if (fileName === 'user_1.json') {
-      profileNames.user_1 = profileName;
-    } else if (fileName === 'user_2.json') {
-      profileNames.user_2 = profileName;
-    }
+    profileNames[fileName === 'user_1.json' ? 'user_1' : 'user_2'] = profileName;
 
     fs.writeFileSync(
       profileNamesPath,
@@ -38,51 +43,32 @@ async function fetchOffers(url, fileName) {
       'utf-8'
     );
 
-    // Получаем английскую версию URL
-    const enUrl = url.replace('https://funpay.com/', 'https://funpay.com/en/');
-    let enData;
-    try {
-      const enResponse = await axios.get(enUrl);
-      enData = enResponse.data;
-    } catch (error) {
-      console.log(`Warning: Could not fetch English version for ${url}. Using original data.`);
-      enData = data;
-    }
-    const $en = cheerio.load(enData);
-
-    const currentItems = await Promise.all(
-      $('.tc-item').map(async (index, element) => {
-        const fullDescText = $(element).find('.tc-desc-text').text().trim();
-        const descText = fullDescText.split(',')[0];
-        const price = $(element).find('.tc-price div').text().trim();
-        const title = $(element).closest('.offer').find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
-        const categoryLink = $(element).closest('.offer').find('.offer-list-title a').attr('href') || '';
-        const node_id = categoryLink.split('/').filter(Boolean).pop() || '';
-        const offerLink = $(element).attr('href') || '';
-        const offerId = offerLink.split('id=')[1];
-
-        // Получаем описание с английской страницы по ID
-        const enOfferSelector = `.tc-item[href*="id=${offerId}"]`;
-        const enElement = $en(enOfferSelector);
-        const descTextEn = enElement.find('.tc-desc-text').text().trim().split(',')[0];
-
-        return {
-          profileName,
-          title,
-          descText,
-          descTextEn,
-          price,
-          node_id,
-          offerLink
-        };
-      }).get()
-    );
+    // Оптимизированный сбор данных
+    const items = $('.tc-item').map((index, element) => {
+      const $item = $(element);
+      const $offer = $item.closest('.offer');
+      const offerLink = $item.attr('href') || '';
+      const offerId = offerLink.split('id=')[1];
+      
+      // Получаем английское описание
+      const $enItem = $en(`.tc-item[href*="id=${offerId}"]`);
+      
+      return {
+        profileName,
+        title: $offer.find('.offer-list-title a').text().trim() || 'Неизвестный заголовок',
+        descText: $item.find('.tc-desc-text').text().trim().split(',')[0],
+        descTextEn: $enItem.find('.tc-desc-text').text().trim().split(',')[0],
+        price: $item.find('.tc-price div').text().trim(),
+        node_id: ($offer.find('.offer-list-title a').attr('href') || '').split('/').filter(Boolean).pop() || '',
+        offerLink
+      };
+    }).get();
 
     const filePath = join(__dirname, fileName);
-    fs.writeFileSync(filePath, JSON.stringify(currentItems, null, 2), 'utf-8');
-    console.log(`Данные успешно сохранены в файл ${fileName}`);
+    fs.writeFileSync(filePath, JSON.stringify(items, null, 2), 'utf-8');
+    console.log(chalk.blue.bold('🌐 FunPay') + chalk.white(' → ') + chalk.green('✓ ') + chalk.green(`Данные ${fileName} сохранены`));
   } catch (error) {
-    console.error(`Error processing URL (${url}):`, error.message);
+    console.log(chalk.blue.bold('🌐 FunPay') + chalk.white(' → ') + chalk.red('✗ Ошибка: ') + error.message);
   }
 }
 

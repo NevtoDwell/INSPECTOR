@@ -1,8 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
-const FormData = require('form-data');
-const { join } = require('path');
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
+import FormData from 'form-data';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { getFormTemplate } from './form_templates_cfg.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 class FunPayFormProcessor {
     constructor(offersPath, configPath) {
@@ -15,7 +20,7 @@ class FunPayFormProcessor {
         this.descEn = fs.readFileSync(join(__dirname, 'desc_en.txt'), 'utf-8').trim();
     }
 
-    formatDescription(text) {
+    static formatDescription(text) {
         // Удаляем все символы в начале и конце строки, оставляя только текст
         text = text.replace(/^[^\w\s]+|[^\w\s]+$/g, '');
         
@@ -73,6 +78,13 @@ class FunPayFormProcessor {
 
     async submitForm(offerData) {
         try {
+            console.log('\nОтправка формы для оффера:', offerData.offer.id);
+            console.log('node_id:', offerData.offer.node_id);
+            console.log('Данные формы:');
+            for (const [key, value] of Object.entries(offerData.formData)) {
+                console.log(`${key}: ${value}`);
+            }
+
             // Сначала проверим куки
             if (!offerData.cookies.includes('PHPSESSID') || !offerData.cookies.includes('golden_key')) {
                 console.error(' Ошибка: Отсутствуют важные куки для авторизации (PHPSESSID или golden_key)');
@@ -171,13 +183,16 @@ class FunPayFormProcessor {
 
     async readOffersToAdd() {
         try {
-            const offers = JSON.parse(fs.readFileSync(this.offersPath, 'utf8'));
+            console.log('Читаем файл с предложениями...');
+            const data = fs.readFileSync(this.offersPath, 'utf8');
+            console.log('Файл прочитан, парсим JSON...');
+            const offers = JSON.parse(data);
             
             console.log(' Всего офферов:', offers.length);
 
             // Фильтруем офферы только с node_id "1142" и "1560"
             const filteredOffers = offers.filter(o => 
-                (o.node_id === "1142" || o.node_id === "1560") && 
+                (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127") && 
                 o.descText && 
                 o.price
             );
@@ -199,132 +214,92 @@ class FunPayFormProcessor {
 
             return reversedOffers;
         } catch (error) {
-            console.error(' Ошибка при чтении офферов:', error);
+            console.error('Ошибка при чтении файла с предложениями:', error.message);
             return [];
         }
     }
 
     async processAllOffers() {
         try {
+            console.log('Начинаем обработку предложений...');
             const offers = await this.readOffersToAdd();
-            
-            if (offers.length === 0) {
-                console.log('❌ Нет офферов для обработки');
-                return false;
-            }
-
-            console.log(`🚀 Начинаем обработку ${offers.length} офферов`);
+            console.log(`Найдено ${offers.length} предложений для обработки`);
 
             for (const [index, offer] of offers.entries()) {
-                console.log(`\n📦 Обработка оффера ${index + 1}/${offers.length}`);
-                
-                // Добавляем подробную информацию об оффере
-                console.log('\x1b[36m🎮 Детали оффера:\x1b[0m');
-                console.log(`\x1b[32mНазвание: ${offer.title}\x1b[0m`);
-                console.log(`\x1b[32mNode ID: ${offer.node_id}\x1b[0m`);
-                console.log(`\x1b[32mЦена: ${offer.price}\x1b[0m`);
-                console.log(`\x1b[32mОписание (RU): ${offer.descText}\x1b[0m`);
-                console.log(`\x1b[32mОписание (EN): ${offer.descTextEn}\x1b[0m`);
-                console.log(`\x1b[32mСсылка на оффер: ${offer.offerLink}\x1b[0m`);
-
-                // Определяем формат данных в зависимости от node_id
-                let formData;
-                
-                if (offer.node_id === "1142") { //Arknights
-                    formData = {
-                        csrf_token: this.config.csrf_token,
-                        offer_id: '',
-                        node_id: offer.node_id,
-                        location: '',
-                        deleted: '',
-                        'fields[type]': 'Паки',
-                        'fields[summary][ru]': this.formatDescription(offer.descText),
-                        'fields[summary][en]': this.formatDescription(offer.descTextEn),
-                        'fields[desc][ru]': this.descRu,
-                        'fields[desc][en]': this.descEn,
-                        'fields[payment_msg][ru]': ' ',
-                        'fields[payment_msg][en]': ' ',
-                        price: offer.price, 
-                        amount: '999',
-                        active: 'on'
-                    };
-                } else if (offer.node_id === "1560") { //Asphalt
-                    // Увеличиваем цену на 10%
-                    const originalPrice = parseFloat(offer.price.replace(/[^\d.]/g, '')); // Убираем все символы кроме цифр и точки
-                    const increasedPrice = Math.round(originalPrice / 1.10);
-                    
-                    console.log(' 💰 Исходная строка цены:', offer.price);
-                    console.log(' 💰 Очищенная цена:', originalPrice);
-                    console.log(' 💰 Рассчитанная цена:', increasedPrice);
-
-                    formData = {
-                        csrf_token: this.config.csrf_token,
-                        offer_id: '',
-                        node_id: offer.node_id,
-                        location: '',
-                        deleted: '',
-                        server_id: '9074',
-                        'fields[method]': 'С заходом на аккаунт',
-                        'fields[summary][ru]': this.formatDescription(offer.descText),
-                        'fields[summary][en]': '',
-                        'fields[desc][ru]': this.descRu,
-                        'fields[desc][en]': '',
-                        'fields[payment_msg][ru]': ' ',
-                        'fields[payment_msg][en]': ' ',
-                        'fields[images]': '',
-                        price: increasedPrice,
-                        deactivate_after_sale: '',
-                        active: 'on'
-                    };
-
-                    // Логируем данные формы
-                    console.log(' 📝 Данные формы:', JSON.stringify(formData, null, 2));
-                }
-
-                if (!formData) {
-                    console.log(`⚠️ Пропуск оффера: неподдерживаемый node_id ${offer.node_id}`);
-                    continue;
-                }
-
                 try {
-                    const result = await this.submitForm({
-                        formData,
-                        offer,
-                        cookies: this.config.cookies,
-                        url: `https://funpay.com/lots/offerEdit?node=${offer.node_id}`,
-                        submitUrl: 'https://funpay.com/lots/offerSave'
-                    });
+                    console.log(`\n📦 Обработка оффера ${index + 1}/${offers.length}`);
+                    
+                    // Добавляем подробную информацию об оффере
+                    console.log('\x1b[36m🎮 Детали оффера:\x1b[0m');
+                    console.log(`\x1b[32mНазвание: ${offer.title}\x1b[0m`);
+                    console.log(`\x1b[32mNode ID: ${offer.node_id}\x1b[0m`);
+                    console.log(`\x1b[32mЦена: ${offer.price}\x1b[0m`);
+                    console.log(`\x1b[32mОписание (RU): ${offer.descText}\x1b[0m`);
+                    console.log(`\x1b[32mОписание (EN): ${offer.descTextEn}\x1b[0m`);
+                    console.log(`\x1b[32mСсылка на оффер: ${offer.offerLink}\x1b[0m`);
 
-                    if (!result) {
-                        console.error(`❌ Ошибка при отправке оффера ${index + 1}`);
+                    const template = getFormTemplate(offer.node_id);
+                    if (!template) {
+                        console.log(`⚠️ Пропуск оффера: неподдерживаемый node_id ${offer.node_id}`);
+                        continue;
                     }
 
-                    console.log(`⏳ Ожидание 2 секунд перед следующим оффером...`);
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    const formData = template.getFormData(offer, {
+                        csrf_token: this.config.csrf_token,
+                        descRu: this.descRu,
+                        descEn: this.descEn
+                    });
 
-                } catch (submitError) {
-                    console.error(`❌ Ошибка при отправке оффера ${index + 1}:`, submitError);
-                    continue;
+                    try {
+                        console.log(`Обрабатываем предложение: ${JSON.stringify(offer)}`);
+                        const result = await this.submitForm({
+                            formData,
+                            offer,
+                            cookies: this.config.cookies,
+                            url: `https://funpay.com/lots/offerEdit?node=${offer.node_id}`,
+                            submitUrl: 'https://funpay.com/lots/offerSave'
+                        });
+
+                        if (!result) {
+                            console.error(`❌ Ошибка при отправке оффера ${index + 1}`);
+                        }
+
+                        console.log('Предложение успешно добавлено');
+                        await this.removeProcessedOffer(offer);
+                        console.log('Предложение удалено из списка');
+
+                        console.log(`⏳ Ожидание 2 секунд перед следующим оффером...`);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    } catch (submitError) {
+                        console.error(`❌ Ошибка при отправке оффера ${index + 1}:`, submitError);
+                        continue;
+                    }
+                } catch (error) {
+                    console.error('Ошибка при обработке предложения:', error.message);
                 }
             }
 
             return true;
         } catch (error) {
-            console.error('❌ Ошибка при обработке офферов:', error);
+            console.error('Ошибка при обработке всех предложений:', error.message);
             return false;
         }
     }
 
     async main() {
         try {
+            console.log('Запуск обработки предложений...');
             const processor = new FunPayFormProcessor(
-                path.join(__dirname, 'offers_to_add.json'),
+                path.join(__dirname, '../differenceBetweenOffers/offers_to_add.json'),
                 path.join(__dirname, 'config.json')
             );
 
+            // Вместо processNextOffer() используем processAllOffers()
             await processor.processAllOffers();
+            console.log('Обработка завершена');
         } catch (error) {
-            console.error('Ошибка в main:', error);
+            console.error('Ошибка в main():', error);
         }
     }
 }
@@ -352,16 +327,29 @@ function extractFormCreatedAt(html) {
 
 // Заменяем текущую функцию main() на:
 async function main() {
-    const processor = new FunPayFormProcessor(
-        path.join(__dirname, '../differenceBetweenOffers/offers_to_add.json'),
-        path.join(__dirname, 'config.json')
-    );
+    try {
+        console.log('Запуск обработки предложений...');
+        const processor = new FunPayFormProcessor(
+            path.join(__dirname, '../differenceBetweenOffers/offers_to_add.json'),
+            path.join(__dirname, 'config.json')
+        );
 
-    // Вместо processNextOffer() используем processAllOffers()
-    await processor.processAllOffers();
+        // Вместо processNextOffer() используем processAllOffers()
+        await processor.processAllOffers();
+        console.log('Обработка завершена');
+    } catch (error) {
+        console.error('Ошибка в main():', error);
+    }
 }
 
-// Запускаем основную функцию
-main().catch(console.error);
+// Запускаем основную функцию если файл запущен напрямую
+if (import.meta.url.startsWith('file:')) {
+    main().catch(error => {
+        console.error('Необработанная ошибка:', error);
+        process.exit(1);
+    });
+}
 
-module.exports = FunPayFormProcessor;
+export { FunPayFormProcessor };
+// Экспортируем статический метод отдельно для удобства
+export const formatDescription = FunPayFormProcessor.formatDescription;

@@ -1,15 +1,21 @@
 {
   "name": "funpay-form-submitter",
   "version": "1.0.0",
-  "description": "Автоматизация отправки форм на FunPay",
+  "description": "",
   "main": "form_data_processor.js",
+  "type": "module",
   "scripts": {
-    "start": "node form_data_processor.js"
+    "start": "node form_data_processor.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^1.6.2",
     "chalk": "^5.3.0",
     "cheerio": "^1.0.0",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "google-spreadsheet": "^4.1.1"
   }
 }

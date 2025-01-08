@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import chalk from 'chalk';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,7 +12,7 @@ function readJSON(filePath) {
     const data = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
-    console.error(`Ошибка при чтении файла ${filePath}:`, error.message);
+    console.log(chalk.yellow.bold('📄 JSON') + chalk.white(' → ') + chalk.red('✗ Ошибка чтения: ') + error.message);
     return [];
   }
 }
@@ -118,33 +119,38 @@ async function compareFiles() {
   
   const differences = findUniqueDifferences(user1Data, user2Data);
   
-  // Сохраняем все различия
-  fs.writeFileSync(
-    join(__dirname, 'differences.json'),
-    JSON.stringify(differences, null, 2),
-    'utf-8'
-  );
-  
-  // Создаем список офферов для добавления
-  const offersToAdd = differences
-    .filter(diff => diff.differenceType === '❌❌❌ ADD ME')
-    .map(diff => ({
-      title: diff.title,
-      descText: diff.descText,
-      descTextEn: diff.descTextEn || '',
-      price: diff.price,
-      node_id: diff.node_id,
-      offerLink: diff.offerLink || ''
-    }));
-  
-  fs.writeFileSync(
-    join(__dirname, 'offers_to_add.json'),
-    JSON.stringify(offersToAdd, null, 2),
-    'utf-8'
-  );
-  
-  console.log('Различия сохранены в файл differences.json');
-  console.log('Офферы для добавления сохранены в файл offers_to_add.json');
+  try {
+    // Сохраняем все различия
+    fs.writeFileSync(
+      join(__dirname, 'differences.json'),
+      JSON.stringify(differences, null, 2),
+      'utf-8'
+    );
+    
+    // Создаем список офферов для добавления
+    const offersToAdd = differences
+      .filter(diff => diff.differenceType === '❌❌❌ ADD ME')
+      .map(diff => ({
+        title: diff.title,
+        descText: diff.descText,
+        descTextEn: diff.descTextEn || '',
+        price: diff.price,
+        node_id: diff.node_id,
+        offerLink: diff.offerLink || ''
+      }));
+    
+    fs.writeFileSync(
+      join(__dirname, 'offers_to_add.json'),
+      JSON.stringify(offersToAdd, null, 2),
+      'utf-8'
+    );
+
+    // Выводим количество офферов в stdout
+    console.log(`OFFERS_TO_ADD:${offersToAdd.length}`);
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
 }
 
 compareFiles();

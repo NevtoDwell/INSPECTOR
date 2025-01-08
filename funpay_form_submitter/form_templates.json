@@ -1,31 +1,50 @@
 {
+  "965": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[quantity]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
+  },
+  "1127": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[method]": "",
+    "fields[type]": "",
+    "fields[type2]": "",
+    "fields[brawlpass]": "",
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": ""
+  },
   "1142": {
-    "name": "Arknights",
-    "template": {
-      "fields[type]": "Паки",
-      "fields[summary][ru]": true,
-      "fields[summary][en]": true,
-      "fields[desc][ru]": true,
-      "fields[desc][en]": true,
-      "fields[payment_msg][ru]": " ",
-      "fields[payment_msg][en]": " ",
-      "amount": "999"
-    }
+    "csrf_token": "",
+    "node_id": "",
+    "fields[type]": "",
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
   },
   "1560": {
-    "name": "Asphalt",
-    "template": {
-      "server_id": "9074",
-      "fields[method]": "С заходом на аккаунт",
-      "fields[summary][ru]": true,
-      "fields[summary][en]": "",
-      "fields[desc][ru]": true,
-      "fields[desc][en]": "",
-      "fields[payment_msg][ru]": " ",
-      "fields[payment_msg][en]": " ",
-      "fields[images]": "",
-      "deactivate_after_sale": ""
-    },
-    "priceModifier": 0.91 // 1/1.10 для уменьшения цены на 10%
+    "csrf_token": "",
+    "node_id": "",
+    "server_id": "",
+    "fields[method]": "",
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": ""
   }
 }
