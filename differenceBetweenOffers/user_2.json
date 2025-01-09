@@ -792,16 +792,6 @@
   {
     "profileName": "BestRmtShop",
     "title": "Донат Arknights",
-    "descText": "✅ ⚡ RHODES ISLAND SPECIAL PACK ▪︎ ЗА ( 49.99 $ / 50 $ ) ⚡",
-    "descTextEn": "✅ ⚡ Rhodes Island Resource Pack ▪︎ FOR ( 49.99 $ / 50 $ ) ⚡",
-    "price": "8269 ₽",
-    "node_id": "1142",
-    "offerLink": "https://funpay.com/lots/offer?id=37112229",
-    "options": "Паки"
-  },
-  {
-    "profileName": "BestRmtShop",
-    "title": "Донат Arknights",
     "descText": "✅ ⚡ RHODES ISLAND HEADHUNTING PACK или DAHUANG SIGHTSEEING PACK ▪︎ ЗА ( 29.99 $ / 30 $ ) ⚡",
     "descTextEn": "✅ ⚡ Rhodes Island Special Pack ▪︎ FOR ( 29.99 $ / 30 $ ) ⚡",
     "price": "5075 ₽",
@@ -988,16 +978,6 @@
     "node_id": "1142",
     "offerLink": "https://funpay.com/lots/offer?id=15133386",
     "options": "Паки"
-  },
-  {
-    "profileName": "BestRmtShop",
-    "title": "Донат Asphalt",
-    "descText": "✅ ⚡ ПРОПУСК UNITE ▪︎ YEAR OF THE SNAKE ▪︎ ЗА 5 $ ⚡",
-    "descTextEn": "✅ ⚡ ПРОПУСК UNITE ▪︎ YEAR OF THE SNAKE ▪︎ ЗА 5 $ ⚡",
-    "price": "649.98 ₽",
-    "node_id": "1560",
-    "offerLink": "https://funpay.com/lots/offer?id=37183003",
-    "options": "С заходом на аккаунт"
   },
   {
     "profileName": "BestRmtShop",
@@ -2178,6 +2158,116 @@
     "node_id": "967",
     "offerLink": "https://funpay.com/lots/offer?id=19547614",
     "options": "2000 гемов, Официально (рекомендуется), С заходом на аккаунт (Supercell ID)"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ 𝐁𝐑𝐀𝐖𝐋 𝐏𝐀𝐒𝐒 ▪︎ ОБЫЧНЫЙ БРАВЛ ПАСС ▪︎ BRAWL PASS ▪︎ БОЕВОЙ ПРОПУСК ⚡",
+    "descTextEn": "✅ ⚡ 𝐁𝐑𝐀𝐖𝐋 𝐏𝐀𝐒𝐒 ▪︎ ОБЫЧНЫЙ БРАВЛ ПАСС ▪︎ BRAWL PASS ▪︎ БОЕВОЙ ПРОПУСК ⚡",
+    "price": "949.58 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208916",
+    "options": "Brawl Pass, Brawl Pass, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ УЛУЧШИТЬ BRAWL PASS НА BRAWL PASS ➕ ▪︎ ( ТОЛЬКО ЕСЛИ УЖЕ КУПЛЕН ОБЫЧНЫЙ БРАВЛ ПАСС ) ⚡",
+    "descTextEn": "✅ ⚡ УЛУЧШИТЬ BRAWL PASS НА BRAWL PASS ➕ ▪︎ ( ТОЛЬКО ЕСЛИ УЖЕ КУПЛЕН ОБЫЧНЫЙ БРАВЛ ПАСС ) ⚡",
+    "price": "630.27 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208915",
+    "options": "Brawl Pass, Brawl Pass, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ 𝐁𝐑𝐀𝐖𝐋 𝐏𝐀𝐒𝐒 ▪︎ БРАВЛ ПАСС ▪︎ СКИДКА ЗА ПЕРВУЮ ПОКУПКУ ▪︎ ( ОСОБАЯ СКИДКА ) ⚡",
+    "descTextEn": "✅ ⚡ 𝐁𝐑𝐀𝐖𝐋 𝐏𝐀𝐒𝐒 ▪︎ БРАВЛ ПАСС ▪︎ СКИДКА ЗА ПЕРВУЮ ПОКУПКУ ▪︎ ( ОСОБАЯ СКИДКА ) ⚡",
+    "price": "469.43 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208913",
+    "options": "Brawl Pass, Brawl Pass, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ СКИН ▪︎ ВУДИ КОЛЬТ ⚡",
+    "descTextEn": "✅ ⚡ СКИН ▪︎ ВУДИ КОЛЬТ ⚡",
+    "price": "1450 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208911",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ СКИН ▪︎ БО ПИП БИБИ ⚡",
+    "descTextEn": "✅ ⚡ СКИН ▪︎ БО ПИП БИБИ ⚡",
+    "price": "1190 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208908",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ СКИН ▪︎ ДЖЕССИ ДЖЕССИ ⚡",
+    "descTextEn": "✅ ⚡ СКИН ▪︎ ДЖЕССИ ДЖЕССИ ⚡",
+    "price": "630.27 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208907",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 29 ГЕМОВ ⚡",
+    "descTextEn": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 29 ГЕМОВ ⚡",
+    "price": "330.03 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208906",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 79 ГЕМОВ ⚡",
+    "descTextEn": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 79 ГЕМОВ ⚡",
+    "price": "750.61 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208899",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 169 ГЕМОВ ⚡",
+    "descTextEn": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 169 ГЕМОВ ⚡",
+    "price": "1450 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208898",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 199 ГЕМОВ ⚡",
+    "descTextEn": "✅ ⚡ ЛЮБОЙ СКИН ▪︎ НАБОР ▪︎ АКЦИЯ ▪︎ ЗА 199 ГЕМОВ ⚡",
+    "price": "1750 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208897",
+    "options": "Скины, Официально (рекомендуется), С заходом на аккаунт"
+  },
+  {
+    "profileName": "BestRmtShop",
+    "title": "Донат Brawl Stars",
+    "descText": "✅ ⚡ БОЛЬШЕ ПИЦЦЫ! ▪︎ КУСКИ ПИЦЦЫ х3000 ▪︎ ( На 200% больше ▪︎ При наличии акции ) ⚡",
+    "descTextEn": "✅ ⚡ БОЛЬШЕ ПИЦЦЫ! ▪︎ КУСКИ ПИЦЦЫ х3000 ▪︎ ( На 200% больше ▪︎ При наличии акции ) ⚡",
+    "price": "3450 ₽",
+    "node_id": "1127",
+    "offerLink": "https://funpay.com/lots/offer?id=37208894",
+    "options": "Особая акция, Официально (рекомендуется), С заходом на аккаунт"
   },
   {
     "profileName": "BestRmtShop",
