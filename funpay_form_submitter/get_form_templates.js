@@ -22,9 +22,39 @@ async function getFormMetadata(categoryId, cookies) {
             console.log(chalk.blue('ℹ Получаем данные из существующего оффера...'));
             
             // Получаем данные формы из существующего оффера
-            const offerFormData = await getOfferFormData(offerId, categoryId, cookies);
-            if (offerFormData) {
-                return offerFormData;
+            const $ = await getOfferFormData(offerId, categoryId, cookies);
+            if ($) {
+                
+                // Создаем шаблон формы
+                const template = {
+                    "csrf_token": "",
+                    "node_id": "",
+                    "fields[method]": "",
+                    "fields[type]": "",
+                    "fields[type2]": "",
+                    "fields[brawlpass]": "",
+                    "fields[summary][ru]": "",
+                    "fields[summary][en]": "",
+                    "fields[desc][ru]": "",
+                    "fields[desc][en]": "",
+                    "active": "",
+                    "price": "",
+                    "deactivate_after_sale": "" 
+                };
+
+                // Сохраняем данные в файл
+                const formTemplatesPath = path.join(__dirname, 'form_templates.json');
+                let templates = {};
+                if (fs.existsSync(formTemplatesPath)) {
+                    templates = JSON.parse(fs.readFileSync(formTemplatesPath, 'utf8'));
+                }
+                
+                templates[categoryId] = template;
+                
+                fs.writeFileSync(formTemplatesPath, JSON.stringify(templates, null, 2));
+                console.log(chalk.green('✓ Данные формы сохранены в form_templates.json'));
+                
+                return $;
             }
         }
 
@@ -46,6 +76,40 @@ async function getFormMetadata(categoryId, cookies) {
             console.log(chalk.yellow('⚠ Обнаружено сообщение о множестве предложений'));
             return null;
         }
+
+        console.log(chalk.blue('ℹ HTML формы:'));
+        console.log($('select[name="fields[type]"]').html());
+
+        // Получаем опции перед созданием шаблона
+        const typeOptions = extractSelectOptions($, 'fields[type]');
+        
+        // Создаем шаблон формы
+        const template = {
+            "csrf_token": "",
+            "node_id": "",
+            "fields[method]": "",
+            "fields[type]": "",
+            "fields[type2]": "",
+            "fields[brawlpass]": "",
+            "fields[summary][ru]": "",
+            "fields[summary][en]": "",
+            "fields[desc][ru]": "",
+            "fields[desc][en]": "",
+            "active": "",
+            "price": ""
+        };
+
+        // Сохраняем данные в файл
+        const formTemplatesPath = path.join(__dirname, 'form_templates.json');
+        let templates = {};
+        if (fs.existsSync(formTemplatesPath)) {
+            templates = JSON.parse(fs.readFileSync(formTemplatesPath, 'utf8'));
+        }
+        
+        templates[categoryId] = template;
+        
+        fs.writeFileSync(formTemplatesPath, JSON.stringify(templates, null, 2));
+        console.log(chalk.green('✓ Данные формы сохранены в form_templates.json'));
 
         return $;
     } catch (error) {
@@ -109,6 +173,19 @@ async function getOfferFormData(offerId, categoryId, cookies) {
         console.log(chalk.red('✗ Ошибка при получении данных формы:', error.message));
         return null;
     }
+}
+
+// Функция для получения options из select поля
+function extractSelectOptions($, fieldName) {
+    const options = {};
+    $(`select[name="${fieldName}"] option`).each(function() {
+        const value = $(this).attr('value');
+        const text = $(this).text().trim();
+        if (value && value !== '') {
+            options[value] = text;
+        }
+    });
+    return options;
 }
 
 // Функция задержки
@@ -186,6 +263,7 @@ async function main() {
                 'amount', 
                 'active',
                 'price',
+                'deactivate_after_sale'
             ];
 
             console.log(chalk.cyan('\n→ Поиск полей формы:'));
@@ -193,7 +271,11 @@ async function main() {
                 const field = $(`[name="${fieldName}"]`);
                 if (field.length) {
                     console.log(`${chalk.green('✓')} ${chalk.yellow(fieldName)}`);
-                    formData[fieldName] = '';
+                    if (field.is('select')) {
+                        formData[fieldName] = extractSelectOptions($, fieldName);
+                    } else {
+                        formData[fieldName] = '';
+                    }
                 } else {
                     console.log(`${chalk.red('✗')} ${chalk.yellow(fieldName)} - поле не найдено`);
                 }

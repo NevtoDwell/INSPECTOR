@@ -74,7 +74,9 @@ function findUniqueDifferences(array1, array2) {
         priceDifference: `${priceDifference} ₽`,
         node_id: item1.node_id || '',
         offerLink1: item1.offerLink || '',
-        offerLink2: matchingItem.offerLink || ''
+        offerLink2: matchingItem.offerLink || '',
+        options1: item1.options || 'С заходом на аккаунт',
+        options2: matchingItem.options || 'С заходом на аккаунт'
       });
     } else {
       differences.push({
@@ -84,7 +86,8 @@ function findUniqueDifferences(array1, array2) {
         descTextEn: item1.descTextEn || '',
         price: item1.price,
         node_id: item1.node_id || '',
-        offerLink: item1.offerLink || ''
+        offerLink: item1.offerLink || '',
+        options: item1.options || 'С заходом на аккаунт'
       });
     }
 
@@ -104,7 +107,8 @@ function findUniqueDifferences(array1, array2) {
         descTextEn: item2.descTextEn || '',
         price: item2.price,
         node_id: item2.node_id || '',
-        offerLink: item2.offerLink || ''
+        offerLink: item2.offerLink || '',
+        options: item2.options || 'С заходом на аккаунт'
       });
     }
   });
@@ -136,7 +140,8 @@ async function compareFiles() {
         descTextEn: diff.descTextEn || '',
         price: diff.price,
         node_id: diff.node_id,
-        offerLink: diff.offerLink || ''
+        offerLink: diff.offerLink || '',
+        options: diff.options
       }));
     
     fs.writeFileSync(

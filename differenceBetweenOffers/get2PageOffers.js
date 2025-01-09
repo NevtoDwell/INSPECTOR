@@ -60,7 +60,8 @@ async function fetchOffers(url, fileName) {
         descTextEn: $enItem.find('.tc-desc-text').text().trim().split(',')[0],
         price: $item.find('.tc-price div').text().trim(),
         node_id: ($offer.find('.offer-list-title a').attr('href') || '').split('/').filter(Boolean).pop() || '',
-        offerLink
+        offerLink,
+        options: $item.find('.tc-desc-text').text().trim().split(',').slice(1).map(opt => opt.trim()).filter(opt => opt).join(', ') || 'С заходом на аккаунт'
       };
     }).get();
 
