@@ -1,4 +1,34 @@
 {
+  "609": {
+    "csrf_token": "",
+    "node_id": "",
+    "server_id": {
+      "3842": "Star Wars: Battlefront",
+      "3843": "Star Wars: Battlefront 2",
+      "3844": "Star Wars Jedi: Fallen Order",
+      "3845": "Star Wars: Galaxy of Heroes",
+      "4502": "Star Wars: Squadrons",
+      "8358": "Star Wars Jedi: Survivor",
+      "10028": "Star Wars: Dark Forces Remaster",
+      "10221": "Star Wars Outlaws",
+      "10517": "Star Wars: Bounty Hunter",
+      "10536": "Star Wars: Hunters"
+    },
+    "side_id": {
+      "63": "PC",
+      "64": "Xbox",
+      "65": "PS",
+      "66": "Android",
+      "67": "iOS"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": "",
+    "deactivate_after_sale": ""
+  },
   "965": {
     "csrf_token": "",
     "node_id": "",
@@ -58,6 +88,63 @@
     "price": "",
     "deactivate_after_sale": ""
   },
+  "1129": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[method]": {
+      "Пополнение по ID": "Пополнение по ID",
+      "С заходом на аккаунт": "С заходом на аккаунт"
+    },
+    "fields[type]": {
+      "Внешний вид": "Внешний вид",
+      "Особые акции": "Особые акции"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
+  },
+  "1130": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[method]": {
+      "Пополнение по ID": "Пополнение по ID",
+      "С заходом на аккаунт": "С заходом на аккаунт"
+    },
+    "fields[type]": {
+      "Pass Royale": "Pass Royale",
+      "Наборы": "Наборы",
+      "Акции": "Акции",
+      "Другое": "Другое"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
+  },
+  "1135": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[type]": {
+      "Осколки": "Осколки",
+      "%Наборы-Packs": "Наборы",
+      "%Тома-Томe Packs": "Тома",
+      "%Пропуск-Forge Pass": "Пропуск"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
+  },
   "1142": {
     "csrf_token": "",
     "node_id": "",
@@ -72,6 +159,68 @@
     "amount": "",
     "active": "",
     "price": ""
+  },
+  "1465": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[quantity]": {
+      "32 алмаза-Gems": "32 алмаза",
+      "200 алмазов-Gems": "200 алмазов",
+      "480 алмазов-Gems": "480 алмазов",
+      "1100 алмазов-Gems": "1100 алмазов",
+      "3300 алмазов-Gems": "3300 алмазов",
+      "7500 алмазов-Gems": "7500 алмазов"
+    },
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": "",
+    "deactivate_after_sale": ""
+  },
+  "1486": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[quantity]": {
+      "500 000": "500 000",
+      "1 200 000": "1 200 000",
+      "3 000 000": "3 000 000",
+      "7 000 000": "7 000 000",
+      "20 000 000": "20 000 000",
+      "45 000 000": "45 000 000",
+      "105 500 000": "105 500 000",
+      "Другое количество": "Другое количество"
+    },
+    "fields[type]": {
+      "Монеты": "Монеты",
+      "Сладости": "Сладости",
+      "Ключи": "Ключи"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": "",
+    "deactivate_after_sale": ""
+  },
+  "1523": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[type]": {
+      "Звездный абонемент": "Звездный абонемент",
+      "Подписка": "Подписка",
+      "Приветственное предложение": "Приветственное предложение",
+      "%Наборы-Bundles": "Наборы",
+      "Комплекты FP": "Комплекты FP",
+      "%Акция-Promotion": "Акция"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": "",
+    "deactivate_after_sale": ""
   },
   "1560": {
     "csrf_token": "",
@@ -93,5 +242,45 @@
     "active": "",
     "price": "",
     "deactivate_after_sale": ""
+  },
+  "1697": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[quantity]": {
+      "60 душ": "60 душ",
+      "150 душ": "150 душ",
+      "300 душ": "300 душ",
+      "750 душ": "750 душ",
+      "2000 душ": "2000 душ",
+      "5000 душ": "5000 душ"
+    },
+    "fields[type]": {
+      "%Наборы-Bundles": "Наборы",
+      "Боевой пропуск": "Боевой пропуск",
+      "Души": "Души"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": "",
+    "deactivate_after_sale": ""
+  },
+  "1755": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[topup]": {
+      "Премиум-пропуск": "Премиум-пропуск",
+      "%Ящики-Crates": "Ящики",
+      "%Наборы-Bundles": "Наборы"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
   }
 }

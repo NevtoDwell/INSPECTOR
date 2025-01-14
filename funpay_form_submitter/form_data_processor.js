@@ -21,11 +21,14 @@ class FunPayFormProcessor {
     }
 
     static formatDescription(text) {
-        // Удаляем все символы в начале и конце строки, оставляя только текст
-        text = text.replace(/^[^\w\s]+|[^\w\s]+$/g, '');
+        // Удаляем все символы в начале и конце строки
+        text = text.trim();
         
-        // Добавляем ✅ и ⚡ в начало и конец
-        text = `✅ ⚡ ${text.trim()} ⚡`;
+        // Заменяем группы эмодзи на один ⚡, но сохраняем ➕
+        text = text.replace(/(?!➕)[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}<<>>]+/gu, '⚡');
+        
+        // Добавляем ✅ в начало
+        text = `✅ ${text}`;
         
         return text;
     }
@@ -192,7 +195,7 @@ class FunPayFormProcessor {
 
             // Фильтруем офферы только с node_id "1142" и "1560"
             const filteredOffers = offers.filter(o => 
-                (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127") && 
+                (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127" || o.node_id === "1130" || o.node_id === "1129" || o.node_id === "1135" || o.node_id === "1697" || o.node_id === "1755" || o.node_id === "609" || o.node_id === "1523") && 
                 o.descText && 
                 o.price
             );

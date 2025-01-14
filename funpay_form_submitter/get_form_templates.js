@@ -29,6 +29,7 @@ async function getFormMetadata(categoryId, cookies) {
                 const template = {
                     "csrf_token": "",
                     "node_id": "",
+                    "fields[topup]": "",
                     "fields[method]": "",
                     "fields[type]": "",
                     "fields[type2]": "",
@@ -87,6 +88,7 @@ async function getFormMetadata(categoryId, cookies) {
         const template = {
             "csrf_token": "",
             "node_id": "",
+            "fields[topup]": "",
             "fields[method]": "",
             "fields[type]": "",
             "fields[type2]": "",
@@ -205,7 +207,7 @@ async function main() {
 
         // Фильтруем только нужные категории и убираем дубликаты
         const categories = [...new Set(offersData
-            .filter(offer => ["1127", "1142", "1560", "965"].includes(offer.node_id))
+            .filter(offer => ["1127", "1142", "1560", "965", "1130", "1129", "1135", "1697", "1755", "609", "1486", "1523"].includes(offer.node_id))
             .map(offer => offer.node_id))]
             .map(id => ({
                 id: id,
@@ -249,6 +251,7 @@ async function main() {
                 'node_id',
                 'server_id',
                 'side_id',
+                'fields[topup]',
                 'fields[method]',
                 'fields[game]',
                 'fields[quantity]',
