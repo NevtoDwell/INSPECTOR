@@ -9,12 +9,19 @@ const __dirname = dirname(__filename);
 
 // Константы для форматирования
 const FORMAT_CONFIGS = {
+  DEFAULT: {
+    textFormat: {
+      fontFamily: 'Roboto',
+      fontSize: 10
+    }
+  },
   HEADER: {
     backgroundColor: { red: 0.2, green: 0.2, blue: 0.2 },
     textFormat: {
+      fontFamily: 'Roboto',
       bold: true,
       foregroundColor: { red: 1, green: 1, blue: 1 },
-      fontSize: 11,
+      fontSize: 10,
     },
     horizontalAlignment: 'CENTER',
     verticalAlignment: 'MIDDLE',
@@ -37,22 +44,34 @@ async function initializeGoogleSheets() {
 }
 
 async function clearSheet(sheets, sheetId) {
-  const requests = [
-    {
-      updateCells: {
-        range: {
-          sheetId: sheetId,
-          startRowIndex: 0,
-          startColumnIndex: 0,
-        },
-        fields: 'userEnteredFormat',
-      },
-    },
-  ];
-
+  // Очищаем все содержимое и форматирование
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId: SPREADSHEET_ID,
-    resource: { requests },
+    resource: {
+      requests: [
+        {
+          updateCells: {
+            range: {
+              sheetId: sheetId,
+              startRowIndex: 0,
+            },
+            fields: '*' // Очищаем все поля
+          }
+        },
+        {
+          repeatCell: {
+            range: {
+              sheetId: sheetId,
+              startRowIndex: 0,
+            },
+            cell: {
+              userEnteredFormat: FORMAT_CONFIGS.DEFAULT
+            },
+            fields: 'userEnteredFormat.textFormat(fontFamily,fontSize)'
+          }
+        }
+      ]
+    }
   });
 }
 
@@ -100,37 +119,59 @@ async function formatHeaders(sheets, sheetId, endColumnIndex) {
   });
 }
 
+function formatPrice(price) {
+  if (!price) return '';
+  // Извлекаем только числа из строки
+  const number = price.toString().replace(/[^\d.]/g, '');
+  return parseFloat(number);
+}
+
 async function writeToGoogleSheets() {
   try {
     // Инициализация Google Sheets API
     const sheets = await initializeGoogleSheets();
 
     // Чтение всех необходимых данных
-    const [differences, profileNames, offersToAdd] = await Promise.all([
+    const [differences, profileNames, offersToAdd, additionalLots] = await Promise.all([
       JSON.parse(fs.readFileSync(join(__dirname, 'differences.json'), 'utf-8')),
       JSON.parse(fs.readFileSync(join(__dirname, 'profile_names.json'), 'utf-8')),
       JSON.parse(fs.readFileSync(join(__dirname, 'offers_to_add.json'), 'utf-8')),
+      JSON.parse(fs.readFileSync(join(__dirname, 'additional_lots.json'), 'utf-8'))
     ]);
+
+    // Создаем Map для быстрого поиска ссылок
+    const linkMap = new Map();
+    profileNames.forEach(item => {
+      if (item.title) {
+        linkMap.set(item.title.toLowerCase(), item.offerLink);
+      }
+    });
 
     // Получение информации о листах
     const { data: { sheets: sheetsList } } = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     const differenceSheet = sheetsList.find(sheet => sheet.properties.title === 'DIFFERENCE');
     const needAddSheet = sheetsList.find(sheet => sheet.properties.title === 'NEED ADD');
+    const additionalSheet = sheetsList.find(sheet => sheet.properties.title === 'ADDITIONAL');
 
-    if (!differenceSheet || !needAddSheet) {
+    if (!differenceSheet || !needAddSheet || !additionalSheet) {
       throw new Error('Required sheets not found');
     }
 
+    // Очищаем все листы перед записью новых данных
+    await Promise.all([
+      clearSheet(sheets, differenceSheet.properties.sheetId),
+      clearSheet(sheets, needAddSheet.properties.sheetId),
+      clearSheet(sheets, additionalSheet.properties.sheetId)
+    ]);
+
     // Подготовка данных для DIFFERENCE
     const headers = [
-      'Difference Type', 
-      'Title', 
-      `Description (${profileNames.user_1})`, 
-      `Description (${profileNames.user_2})`, 
-      `Price (${profileNames.user_1})`, 
-      `Price (${profileNames.user_2})`, 
+      'Type', 
+      'Title',
+      'Price [RusyaSmile]', 
+      'Price [BestRmtShop]', 
       'Difference',
-      'FunPay Category ID',
+      'Link'
     ];
 
     const rows = differences.map(item => {
@@ -138,44 +179,95 @@ async function writeToGoogleSheets() {
         return [
           item.differenceType,
           item.title,
-          item.descText1.split(',')[0],
-          item.descText2.split(',')[0],
-          item.price1Rusya,
-          item.price2BestRmt,
-          item.priceDifference,
-          item.node_id || '',
+          formatPrice(item.price1Rusya),
+          formatPrice(item.price2BestRmt),
+          formatPrice(item.priceDifference),
+          item.offerLink || ''
         ];
       }
       return [
         item.differenceType,
         item.title,
-        item.descText.split(',')[0],
-        '',
-        item.price,
+        formatPrice(item.price),
         '',
         '',
-        item.node_id || '',
+        item.offerLink || ''
       ];
     });
 
     // Очистка и запись данных DIFFERENCE
     await Promise.all([
-      clearSheet(sheets, differenceSheet.properties.sheetId),
       sheets.spreadsheets.values.clear({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'DIFFERENCE!A:H',
+        range: 'DIFFERENCE!A:F',
       }),
     ]);
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
       range: 'DIFFERENCE!A1',
-      valueInputOption: 'RAW',
+      valueInputOption: 'USER_ENTERED', // Важно для работы HYPERLINK
       resource: { values: [headers, ...rows] },
     });
 
+    // Форматируем колонку со ссылками
+    const formatLinkColumn = {
+      repeatCell: {
+        range: {
+          sheetId: differenceSheet.properties.sheetId,
+          startRowIndex: 1,
+          startColumnIndex: 5,
+          endColumnIndex: 6,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 1, green: 1, blue: 1 }, // Белый фон
+            textFormat: {
+              fontFamily: 'Roboto',
+              fontSize: 10,
+              foregroundColor: { red: 0.06, green: 0.45, blue: 0.87 },
+              underline: true
+            },
+            horizontalAlignment: 'CENTER',
+            verticalAlignment: 'MIDDLE'
+          }
+        },
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)'
+      }
+    };
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      resource: {
+        requests: [formatLinkColumn]
+      }
+    });
+
+    // Устанавливаем фиксированную ширину для всех столбцов
+    const setColumnWidth = {
+      updateDimensionProperties: {
+        range: {
+          sheetId: differenceSheet.properties.sheetId,
+          dimension: 'COLUMNS',
+          startIndex: 0,
+          endIndex: 6
+        },
+        properties: {
+          pixelSize: 150  // Фиксированная ширина в пикселях
+        },
+        fields: 'pixelSize'
+      }
+    };
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      resource: {
+        requests: [setColumnWidth]
+      }
+    });
+
     // Подготовка данных для NEED ADD
-    const needAddHeaders = ['Title', 'Description', 'Price', 'FunPay Category ID'];
+    const needAddHeaders = ['Title', 'Description', 'Price', 'Category ID'];
     const needAddRows = offersToAdd.map(item => [
       item.title,
       item.descText.split(',')[0],
@@ -185,7 +277,6 @@ async function writeToGoogleSheets() {
 
     // Очистка и запись данных NEED ADD
     await Promise.all([
-      clearSheet(sheets, needAddSheet.properties.sheetId),
       sheets.spreadsheets.values.clear({
         spreadsheetId: SPREADSHEET_ID,
         range: 'NEED ADD',
@@ -199,10 +290,35 @@ async function writeToGoogleSheets() {
       resource: { values: [needAddHeaders, ...needAddRows] },
     });
 
-    // Форматирование обоих листов
+    // Подготовка данных для ADDITIONAL
+    const additionalHeaders = ['Title', 'Description', 'Price', 'Category ID'];
+    const additionalRows = additionalLots.map(item => [
+      item.title,
+      item.descText,
+      item.price,
+      item.node_id || '',
+    ]);
+
+    // Очистка и запись данных ADDITIONAL
     await Promise.all([
-      formatHeaders(sheets, differenceSheet.properties.sheetId, 8),
+      sheets.spreadsheets.values.clear({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'ADDITIONAL!A:D',
+      }),
+    ]);
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'ADDITIONAL!A1',
+      valueInputOption: 'RAW',
+      resource: { values: [additionalHeaders, ...additionalRows] },
+    });
+
+    // Форматирование всех листов
+    await Promise.all([
+      formatHeaders(sheets, differenceSheet.properties.sheetId, 6),
       formatHeaders(sheets, needAddSheet.properties.sheetId, 4),
+      formatHeaders(sheets, additionalSheet.properties.sheetId, 4),
     ]);
 
     // Применяем форматирование к данным
@@ -212,8 +328,9 @@ async function writeToGoogleSheets() {
     rows.forEach((row, index) => {
       const rowIndex = index + 1;
       const backgroundColor = FORMAT_CONFIGS.ROW_TYPES[row[0]];
-
+    
       if (backgroundColor) {
+        // Форматируем все столбцы кроме Link
         formatRequests.push({
           repeatCell: {
             range: {
@@ -221,59 +338,68 @@ async function writeToGoogleSheets() {
               startRowIndex: rowIndex,
               endRowIndex: rowIndex + 1,
               startColumnIndex: 0,
-              endColumnIndex: 8,
+              endColumnIndex: 5, // До столбца Link (не включая его)
             },
             cell: {
               userEnteredFormat: {
                 backgroundColor,
                 verticalAlignment: 'MIDDLE',
-                textFormat: { fontSize: 10 },
+                horizontalAlignment: 'RIGHT', // Выравнивание по правому краю для цен
+                textFormat: { 
+                  fontFamily: 'Roboto',
+                  fontSize: 10 
+                },
                 wrapStrategy: 'WRAP',
               },
             },
-            fields: 'userEnteredFormat(backgroundColor,verticalAlignment,textFormat,wrapStrategy)',
+            fields: 'userEnteredFormat(backgroundColor,verticalAlignment,horizontalAlignment,textFormat,wrapStrategy)',
           },
         });
-      }
 
-      // Подсветка "под заказ"
-      const description = row[2] || '';
-      if (description.toLowerCase().includes('под заказ') || description === '1') {
+        // Форматируем первые два столбца (Type и Title) по левому краю
         formatRequests.push({
           repeatCell: {
             range: {
               sheetId: differenceSheet.properties.sheetId,
               startRowIndex: rowIndex,
               endRowIndex: rowIndex + 1,
-              startColumnIndex: 2,
-              endColumnIndex: 3,
+              startColumnIndex: 0,
+              endColumnIndex: 2,
             },
             cell: {
               userEnteredFormat: {
-                backgroundColor: { red: 1, green: 0.95, blue: 0.6 },
-                textFormat: { bold: true },
+                backgroundColor,
+                verticalAlignment: 'MIDDLE',
+                horizontalAlignment: 'LEFT', // Выравнивание по левому краю для текста
+                textFormat: { 
+                  fontFamily: 'Roboto',
+                  fontSize: 10 
+                },
+                wrapStrategy: 'WRAP',
               },
             },
-            fields: 'userEnteredFormat(backgroundColor,textFormat)',
+            fields: 'userEnteredFormat(backgroundColor,verticalAlignment,horizontalAlignment,textFormat,wrapStrategy)',
           },
         });
       }
-
+    
       // Подсветка большой разницы в цене
-      if (row[6] && parseFloat(row[6]) > 100) {
+      if (row[4] && parseFloat(row[4]) > 100) {
         formatRequests.push({
           repeatCell: {
             range: {
               sheetId: differenceSheet.properties.sheetId,
               startRowIndex: rowIndex,
               endRowIndex: rowIndex + 1,
-              startColumnIndex: 6,
-              endColumnIndex: 7,
+              startColumnIndex: 4,
+              endColumnIndex: 5,
             },
             cell: {
               userEnteredFormat: {
                 backgroundColor: { red: 1, green: 0, blue: 0 },
                 textFormat: {
+                  fontFamily: 'Roboto',
+                  fontSize: 10,
                   bold: true,
                   foregroundColor: { red: 1, green: 1, blue: 1 },
                 },
@@ -301,6 +427,7 @@ async function writeToGoogleSheets() {
               backgroundColor: { red: 1, green: 0.8, blue: 0.8 }, // Красный цвет
               verticalAlignment: 'MIDDLE',
               textFormat: { 
+                fontFamily: 'Roboto',
                 fontSize: 10,
               },
               wrapStrategy: 'WRAP',
@@ -311,11 +438,67 @@ async function writeToGoogleSheets() {
       });
     }
 
+    // Форматируем столбцы с ценами
+    const numberFormatRequests = {
+      repeatCell: {
+        range: {
+          sheetId: differenceSheet.properties.sheetId,
+          startRowIndex: 1,
+          endRowIndex: rows.length + 1,
+          startColumnIndex: 2,
+          endColumnIndex: 5,
+        },
+        cell: {
+          userEnteredFormat: {
+            numberFormat: {
+              type: 'NUMBER',
+              pattern: '# ##0" ₽"'
+            }
+          }
+        },
+        fields: 'userEnteredFormat.numberFormat'
+      }
+    };
+
+    formatRequests.push(numberFormatRequests);
+
     // Применяем все форматирование за один запрос
     if (formatRequests.length > 0) {
       await sheets.spreadsheets.batchUpdate({
         spreadsheetId: SPREADSHEET_ID,
         resource: { requests: formatRequests },
+      });
+    }
+
+    // Форматирование листа ADDITIONAL фиолетовым цветом
+    if (additionalRows.length > 0) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            repeatCell: {
+              range: {
+                sheetId: additionalSheet.properties.sheetId,
+                startRowIndex: 1, // Начинаем с первой строки после заголовка
+                endRowIndex: additionalRows.length + 1,
+                startColumnIndex: 0,
+                endColumnIndex: 4,
+              },
+              cell: {
+                userEnteredFormat: {
+                  backgroundColor: { red: 0.8, green: 0.6, blue: 1 }, // Фиолетовый цвет
+                  verticalAlignment: 'MIDDLE',
+                  textFormat: { 
+                    fontFamily: 'Roboto',
+                    fontSize: 10,
+                  },
+                  wrapStrategy: 'WRAP',
+                },
+              },
+              fields: 'userEnteredFormat(backgroundColor,verticalAlignment,textFormat,wrapStrategy)',
+            },
+          }],
+        },
       });
     }
 

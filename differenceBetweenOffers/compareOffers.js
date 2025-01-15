@@ -144,14 +144,34 @@ async function compareFiles() {
         options: diff.options
       }));
     
+    // Создаем список дополнительных офферов
+    const additionalLots = differences
+      .filter(diff => diff.differenceType === '➕➕➕ ADDITIONAL LOT')
+      .map(diff => ({
+        title: diff.title,
+        descText: diff.descText,
+        descTextEn: diff.descTextEn || '',
+        price: diff.price,
+        node_id: diff.node_id,
+        offerLink: diff.offerLink || '',
+        options: diff.options
+      }));
+
     fs.writeFileSync(
       join(__dirname, 'offers_to_add.json'),
       JSON.stringify(offersToAdd, null, 2),
       'utf-8'
     );
 
+    fs.writeFileSync(
+      join(__dirname, 'additional_lots.json'),
+      JSON.stringify(additionalLots, null, 2),
+      'utf-8'
+    );
+
     // Выводим количество офферов в stdout
     console.log(`OFFERS_TO_ADD:${offersToAdd.length}`);
+    console.log(`ADDITIONAL_LOTS:${additionalLots.length}`);
   } catch (error) {
     console.error(error.message);
     process.exit(1);
