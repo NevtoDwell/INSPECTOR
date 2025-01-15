@@ -160,10 +160,10 @@ async function writeToGoogleSheets() {
     const headers = [
       'Type', 
       'Title',
+      'Link',
       'Price [RusyaSmile]', 
       'Price [BestRmtShop]', 
-      'Difference',
-      'Link'
+      'Difference'
     ];
 
     const rows = differences.map(item => {
@@ -171,193 +171,150 @@ async function writeToGoogleSheets() {
         return [
           item.differenceType,
           item.title,
+          item.offerLink2 || '',
           formatPrice(item.price1Rusya),
           formatPrice(item.price2BestRmt),
-          formatPrice(item.priceDifference),
-          item.offerLink2 || ''
+          formatPrice(item.priceDifference)
         ];
       }
       return [
         item.differenceType,
         item.title,
+        item.offerLink2 || '',
         formatPrice(item.price),
         '',
-        '',
-        item.offerLink2 || ''
+        ''
       ];
     });
 
-    // Очистка и запись данных DIFFERENCE
-    await Promise.all([
-      sheets.spreadsheets.values.clear({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'DIFFERENCE!A:F',
-      }),
-    ]);
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'DIFFERENCE!A1',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [headers, ...rows] },
-    });
-
-    // Добавляем ссылки через rich text
-    const requests = differences.map((item, index) => {
-      if (item.offerLink2) {
-        return {
-          updateCells: {
-            range: {
-              sheetId: differenceSheet.properties.sheetId,
-              startRowIndex: index + 1,
-              endRowIndex: index + 2,
-              startColumnIndex: 5,
-              endColumnIndex: 6
-            },
-            rows: [{
-              values: [{
-                userEnteredValue: { stringValue: "Открыть" },
-                textFormatRuns: [
-                  {
-                    startIndex: 0,
-                    format: {
-                      link: { uri: item.offerLink2 },
-                      foregroundColor: { red: 0.06, green: 0.45, blue: 0.87 },
-                      underline: true
-                    }
-                  }
-                ]
-              }]
-            }],
-            fields: 'userEnteredValue.stringValue,textFormatRuns'
-          }
-        };
-      }
-      return null;
-    }).filter(Boolean);
-
-    if (requests.length > 0) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        resource: { requests }
-      });
-    }
-
-    // Устанавливаем фиксированную ширину для всех столбцов
-    const setColumnWidth = {
-      updateDimensionProperties: {
-        range: {
-          sheetId: differenceSheet.properties.sheetId,
-          dimension: 'COLUMNS',
-          startIndex: 0,
-          endIndex: 6
-        },
-        properties: {
-          pixelSize: 150  // Фиксированная ширина в пикселях
-        },
-        fields: 'pixelSize'
-      }
-    };
-
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: SPREADSHEET_ID,
-      resource: {
-        requests: [setColumnWidth]
-      }
-    });
-
     // Подготовка данных для NEED ADD
-    const needAddHeaders = ['Title', 'Description', 'Price', 'Category ID'];
+    const needAddHeaders = ['Title', 'Description', 'Price'];
     const needAddRows = offersToAdd.map(item => [
       item.title,
       item.descText.split(',')[0],
-      item.price,
-      item.node_id || '',
+      item.price
     ]);
-
-    // Очистка и запись данных NEED ADD
-    await Promise.all([
-      sheets.spreadsheets.values.clear({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'NEED ADD',
-      }),
-    ]);
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'NEED ADD!A1:D',
-      valueInputOption: 'RAW',
-      resource: { values: [needAddHeaders, ...needAddRows] },
-    });
 
     // Подготовка данных для ADDITIONAL
-    const additionalHeaders = ['Title', 'Description', 'Price', 'Category ID'];
+    const additionalHeaders = ['Title', 'Description', 'Price'];
     const additionalRows = additionalLots.map(item => [
       item.title,
       item.descText,
-      item.price,
-      item.node_id || '',
+      item.price
     ]);
 
-    // Очистка и запись данных ADDITIONAL
-    await Promise.all([
-      sheets.spreadsheets.values.clear({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'ADDITIONAL!A:D',
-      }),
-    ]);
+    // Сначала собираем все запросы в один массив
+    const allRequests = [];
+    
+    // Очистка и форматирование всех листов
+    [differenceSheet, needAddSheet, additionalSheet].forEach(sheet => {
+      allRequests.push({
+        updateCells: {
+          range: {
+            sheetId: sheet.properties.sheetId,
+            startRowIndex: 0,
+          },
+          fields: '*'
+        }
+      });
 
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'ADDITIONAL!A1',
-      valueInputOption: 'RAW',
-      resource: { values: [additionalHeaders, ...additionalRows] },
+      // Форматирование заголовков
+      allRequests.push({
+        repeatCell: {
+          range: {
+            sheetId: sheet.properties.sheetId,
+            startRowIndex: 0,
+            endRowIndex: 1,
+          },
+          cell: {
+            userEnteredFormat: FORMAT_CONFIGS.HEADER,
+          },
+          fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)',
+        },
+      });
+
+      // Фиксируем первую строку
+      allRequests.push({
+        updateSheetProperties: {
+          properties: {
+            sheetId: sheet.properties.sheetId,
+            gridProperties: {
+              frozenRowCount: 1,
+            },
+          },
+          fields: 'gridProperties.frozenRowCount',
+        },
+      });
     });
 
-    // Форматирование всех листов
-    await Promise.all([
-      formatHeaders(sheets, differenceSheet.properties.sheetId, 6),
-      formatHeaders(sheets, needAddSheet.properties.sheetId, 4),
-      formatHeaders(sheets, additionalSheet.properties.sheetId, 4),
-    ]);
+    // Записываем данные и форматирование для DIFFERENCE
+    // Заголовки
+    allRequests.push({
+      updateCells: {
+        range: {
+          sheetId: differenceSheet.properties.sheetId,
+          startRowIndex: 0,
+          endRowIndex: 1,
+        },
+        rows: [{
+          values: headers.map(header => ({
+            userEnteredValue: { stringValue: header }
+          }))
+        }],
+        fields: 'userEnteredValue'
+      }
+    });
 
-    // Применяем форматирование к данным
-    const formatRequests = [];
-    
-    // Форматирование строк данных
+    // Данные и форматирование строк
     rows.forEach((row, index) => {
       const rowIndex = index + 1;
       const backgroundColor = FORMAT_CONFIGS.ROW_TYPES[row[0]];
-    
+
+      // Записываем значения строки
+      allRequests.push({
+        updateCells: {
+          range: {
+            sheetId: differenceSheet.properties.sheetId,
+            startRowIndex: rowIndex,
+            endRowIndex: rowIndex + 1,
+          },
+          rows: [{
+            values: row.map((value, colIndex) => ({
+              userEnteredValue: colIndex >= 3 && colIndex <= 5 ? 
+                { numberValue: value || 0 } : 
+                { stringValue: value.toString() }
+            }))
+          }],
+          fields: 'userEnteredValue'
+        }
+      });
+
       if (backgroundColor) {
-        // Форматируем все столбцы кроме Link
-        formatRequests.push({
+        // Форматирование всей строки
+        allRequests.push({
           repeatCell: {
             range: {
               sheetId: differenceSheet.properties.sheetId,
               startRowIndex: rowIndex,
               endRowIndex: rowIndex + 1,
               startColumnIndex: 0,
-              endColumnIndex: 5, // До столбца Link (не включая его)
+              endColumnIndex: 6
             },
             cell: {
               userEnteredFormat: {
                 backgroundColor,
                 verticalAlignment: 'MIDDLE',
-                horizontalAlignment: 'RIGHT', // Выравнивание по правому краю для цен
-                textFormat: { 
-                  fontFamily: 'Roboto',
-                  fontSize: 10 
-                },
-                wrapStrategy: 'WRAP',
-              },
+                horizontalAlignment: 'RIGHT',
+                textFormat: { fontFamily: 'Roboto', fontSize: 10 },
+                wrapStrategy: 'CLIP',
+              }
             },
-            fields: 'userEnteredFormat(backgroundColor,verticalAlignment,horizontalAlignment,textFormat,wrapStrategy)',
-          },
+            fields: 'userEnteredFormat'
+          }
         });
 
-        // Форматируем первые два столбца (Type и Title) по левому краю
-        formatRequests.push({
+        // Выравнивание по левому краю для Type и Title
+        allRequests.push({
           repeatCell: {
             range: {
               sheetId: differenceSheet.properties.sheetId,
@@ -368,31 +325,24 @@ async function writeToGoogleSheets() {
             },
             cell: {
               userEnteredFormat: {
-                backgroundColor,
-                verticalAlignment: 'MIDDLE',
-                horizontalAlignment: 'LEFT', // Выравнивание по левому краю для текста
-                textFormat: { 
-                  fontFamily: 'Roboto',
-                  fontSize: 10 
-                },
-                wrapStrategy: 'WRAP',
-              },
+                horizontalAlignment: 'LEFT',
+              }
             },
-            fields: 'userEnteredFormat(backgroundColor,verticalAlignment,horizontalAlignment,textFormat,wrapStrategy)',
-          },
+            fields: 'userEnteredFormat.horizontalAlignment'
+          }
         });
       }
-    
+
       // Подсветка большой разницы в цене
-      if (row[4] && parseFloat(row[4]) > 100) {
-        formatRequests.push({
+      if (row[5] && parseFloat(row[5]) > 100) {
+        allRequests.push({
           repeatCell: {
             range: {
               sheetId: differenceSheet.properties.sheetId,
               startRowIndex: rowIndex,
               endRowIndex: rowIndex + 1,
-              startColumnIndex: 4,
-              endColumnIndex: 5,
+              startColumnIndex: 5,
+              endColumnIndex: 6,
             },
             cell: {
               userEnteredFormat: {
@@ -403,50 +353,52 @@ async function writeToGoogleSheets() {
                   bold: true,
                   foregroundColor: { red: 1, green: 1, blue: 1 },
                 },
-              },
+              }
             },
-            fields: 'userEnteredFormat(backgroundColor,textFormat)',
-          },
+            fields: 'userEnteredFormat'
+          }
+        });
+      }
+
+      // Добавляем ссылки
+      if (differences[index].offerLink2) {
+        allRequests.push({
+          updateCells: {
+            range: {
+              sheetId: differenceSheet.properties.sheetId,
+              startRowIndex: rowIndex,
+              endRowIndex: rowIndex + 1,
+              startColumnIndex: 2,
+              endColumnIndex: 3
+            },
+            rows: [{
+              values: [{
+                userEnteredValue: { stringValue: "Открыть" },
+                textFormatRuns: [{
+                  startIndex: 0,
+                  format: {
+                    link: { uri: differences[index].offerLink2 },
+                    foregroundColor: { red: 0.06, green: 0.45, blue: 0.87 },
+                    underline: true
+                  }
+                }]
+              }]
+            }],
+            fields: 'userEnteredValue,textFormatRuns'
+          }
         });
       }
     });
 
-    // Добавляем красное форматирование для всех ячеек в NEED ADD
-    if (needAddRows.length > 0) {
-      formatRequests.push({
-        repeatCell: {
-          range: {
-            sheetId: needAddSheet.properties.sheetId,
-            startRowIndex: 1, // Начинаем с первой строки после заголовка
-            endRowIndex: needAddRows.length + 1,
-            startColumnIndex: 0,
-            endColumnIndex: 4,
-          },
-          cell: {
-            userEnteredFormat: {
-              backgroundColor: { red: 1, green: 0.8, blue: 0.8 }, // Красный цвет
-              verticalAlignment: 'MIDDLE',
-              textFormat: { 
-                fontFamily: 'Roboto',
-                fontSize: 10,
-              },
-              wrapStrategy: 'WRAP',
-            },
-          },
-          fields: 'userEnteredFormat(backgroundColor,verticalAlignment,textFormat,wrapStrategy)',
-        },
-      });
-    }
-
-    // Форматируем столбцы с ценами
-    const numberFormatRequests = {
+    // Форматирование цен
+    allRequests.push({
       repeatCell: {
         range: {
           sheetId: differenceSheet.properties.sheetId,
           startRowIndex: 1,
           endRowIndex: rows.length + 1,
-          startColumnIndex: 2,
-          endColumnIndex: 5,
+          startColumnIndex: 3,
+          endColumnIndex: 6,
         },
         cell: {
           userEnteredFormat: {
@@ -458,49 +410,188 @@ async function writeToGoogleSheets() {
         },
         fields: 'userEnteredFormat.numberFormat'
       }
-    };
+    });
 
-    formatRequests.push(numberFormatRequests);
-
-    // Применяем все форматирование за один запрос
-    if (formatRequests.length > 0) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        resource: { requests: formatRequests },
+    // Устанавливаем одинаковую ширину для всех столбцов
+    [differenceSheet, needAddSheet, additionalSheet].forEach(sheet => {
+      const columnCount = sheet === differenceSheet ? 6 : 3;
+      allRequests.push({
+        updateDimensionProperties: {
+          range: {
+            sheetId: sheet.properties.sheetId,
+            dimension: 'COLUMNS',
+            startIndex: 0,
+            endIndex: columnCount
+          },
+          properties: {
+            pixelSize: 250
+          },
+          fields: 'pixelSize'
+        }
       });
-    }
+    });
 
-    // Форматирование листа ADDITIONAL фиолетовым цветом
-    if (additionalRows.length > 0) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        resource: {
-          requests: [{
-            repeatCell: {
-              range: {
-                sheetId: additionalSheet.properties.sheetId,
-                startRowIndex: 1, // Начинаем с первой строки после заголовка
-                endRowIndex: additionalRows.length + 1,
-                startColumnIndex: 0,
-                endColumnIndex: 4,
-              },
-              cell: {
-                userEnteredFormat: {
-                  backgroundColor: { red: 0.8, green: 0.6, blue: 1 }, // Фиолетовый цвет
-                  verticalAlignment: 'MIDDLE',
-                  textFormat: { 
-                    fontFamily: 'Roboto',
-                    fontSize: 10,
-                  },
-                  wrapStrategy: 'WRAP',
-                },
-              },
-              fields: 'userEnteredFormat(backgroundColor,verticalAlignment,textFormat,wrapStrategy)',
+    // Записываем данные для NEED ADD
+    if (needAddRows.length > 0) {
+      allRequests.push(
+        // Заголовки
+        {
+          updateCells: {
+            range: {
+              sheetId: needAddSheet.properties.sheetId,
+              startRowIndex: 0,
+              endRowIndex: 1,
             },
-          }],
+            rows: [{
+              values: needAddHeaders.map(header => ({
+                userEnteredValue: { stringValue: header }
+              }))
+            }],
+            fields: 'userEnteredValue'
+          }
         },
-      });
+        // Данные и форматирование
+        {
+          updateCells: {
+            range: {
+              sheetId: needAddSheet.properties.sheetId,
+              startRowIndex: 1,
+              endRowIndex: needAddRows.length + 1,
+            },
+            rows: needAddRows.map(row => ({
+              values: row.map((value, colIndex) => ({
+                userEnteredValue: { stringValue: value.toString() }
+              }))
+            })),
+            fields: 'userEnteredValue'
+          }
+        },
+        // Форматирование всех ячеек
+        {
+          repeatCell: {
+            range: {
+              sheetId: needAddSheet.properties.sheetId,
+              startRowIndex: 1,
+              endRowIndex: needAddRows.length + 1,
+              startColumnIndex: 0,
+              endColumnIndex: 3,
+            },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: { red: 1, green: 0.8, blue: 0.8 },
+                verticalAlignment: 'MIDDLE',
+                horizontalAlignment: 'LEFT',
+                textFormat: { fontFamily: 'Roboto', fontSize: 10 },
+                wrapStrategy: 'CLIP',
+              }
+            },
+            fields: 'userEnteredFormat'
+          }
+        },
+        // Выравнивание цен по правому краю
+        {
+          repeatCell: {
+            range: {
+              sheetId: needAddSheet.properties.sheetId,
+              startRowIndex: 1,
+              endRowIndex: needAddRows.length + 1,
+              startColumnIndex: 2,
+              endColumnIndex: 3,
+            },
+            cell: {
+              userEnteredFormat: {
+                horizontalAlignment: 'RIGHT',
+              }
+            },
+            fields: 'userEnteredFormat.horizontalAlignment'
+          }
+        }
+      );
     }
+
+    // Записываем данные для ADDITIONAL
+    if (additionalRows.length > 0) {
+      allRequests.push(
+        // Заголовки
+        {
+          updateCells: {
+            range: {
+              sheetId: additionalSheet.properties.sheetId,
+              startRowIndex: 0,
+              endRowIndex: 1,
+            },
+            rows: [{
+              values: additionalHeaders.map(header => ({
+                userEnteredValue: { stringValue: header }
+              }))
+            }],
+            fields: 'userEnteredValue'
+          }
+        },
+        // Данные и форматирование
+        {
+          updateCells: {
+            range: {
+              sheetId: additionalSheet.properties.sheetId,
+              startRowIndex: 1,
+              endRowIndex: additionalRows.length + 1,
+            },
+            rows: additionalRows.map(row => ({
+              values: row.map((value, colIndex) => ({
+                userEnteredValue: { stringValue: value.toString() }
+              }))
+            })),
+            fields: 'userEnteredValue'
+          }
+        },
+        // Форматирование всех ячеек
+        {
+          repeatCell: {
+            range: {
+              sheetId: additionalSheet.properties.sheetId,
+              startRowIndex: 1,
+              endRowIndex: additionalRows.length + 1,
+              startColumnIndex: 0,
+              endColumnIndex: 3,
+            },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: { red: 0.8, green: 0.6, blue: 1 },
+                verticalAlignment: 'MIDDLE',
+                horizontalAlignment: 'LEFT',
+                textFormat: { fontFamily: 'Roboto', fontSize: 10 },
+                wrapStrategy: 'CLIP',
+              }
+            },
+            fields: 'userEnteredFormat'
+          }
+        },
+        // Выравнивание цен по правому краю
+        {
+          repeatCell: {
+            range: {
+              sheetId: additionalSheet.properties.sheetId,
+              startRowIndex: 1,
+              endRowIndex: additionalRows.length + 1,
+              startColumnIndex: 2,
+              endColumnIndex: 3,
+            },
+            cell: {
+              userEnteredFormat: {
+                horizontalAlignment: 'RIGHT',
+              }
+            },
+            fields: 'userEnteredFormat.horizontalAlignment'
+          }
+        }
+      );
+    }
+
+    // Применяем все изменения одним запросом
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      resource: { requests: allRequests }
+    });
 
     console.log(chalk.green.bold('📊 Google Sheets') + chalk.white(' → ') + chalk.green('✓ Данные успешно записаны'));
 
