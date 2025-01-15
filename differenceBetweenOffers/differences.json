@@ -4736,14 +4736,20 @@
     "options2": "Особые акции, С заходом на аккаунт"
   },
   {
-    "differenceType": "❌❌❌ ADD ME",
+    "differenceType": "✅✅✅ SAME",
     "title": "Донат CookieRun: Kingdom",
-    "descText": "🔴🔴🔴<< ИНДИВИДУАЛЬНЫЙ ЛОТ >>🔴🔴🔴",
-    "descTextEn": "🔴🔴🔴<< CAMELLIA MINI PASS >>🔴🔴🔴",
-    "price": "10 900 ₽",
+    "descText1": "🔴🔴🔴<< CAMELLIA MINI PASS >>🔴🔴🔴",
+    "descText2": "✅⚡ CAMELLIA MINI PASS ⚡",
+    "descTextEn1": "🔴🔴🔴<< CAMELLIA MINI PASS >>🔴🔴🔴",
+    "descTextEn2": "✅⚡ CAMELLIA MINI PASS ⚡",
+    "price1Rusya": "1290 ₽",
+    "price2BestRmt": "1298 ₽",
+    "priceDifference": "8.00 ₽",
     "node_id": "1823",
-    "offerLink": "https://funpay.com/lots/offer?id=32961863",
-    "options": "С заходом на аккаунт"
+    "offerLink1": "https://funpay.com/lots/offer?id=32961863",
+    "offerLink2": "https://funpay.com/lots/offer?id=36856873",
+    "options1": "С заходом на аккаунт",
+    "options2": "С заходом на аккаунт"
   },
   {
     "differenceType": "✅✅✅ SAME",
@@ -13353,16 +13359,6 @@
     "price": "2099 ₽",
     "node_id": "1356",
     "offerLink": "https://funpay.com/lots/offer?id=37220418",
-    "options": "С заходом на аккаунт"
-  },
-  {
-    "differenceType": "➕➕➕ ADDITIONAL LOT",
-    "title": "Донат CookieRun: Kingdom",
-    "descText": "✅⚡ CAMELLIA MINI PASS ⚡",
-    "descTextEn": "✅⚡ CAMELLIA MINI PASS ⚡",
-    "price": "1298 ₽",
-    "node_id": "1823",
-    "offerLink": "https://funpay.com/lots/offer?id=36856873",
     "options": "С заходом на аккаунт"
   },
   {

@@ -174,7 +174,7 @@ async function writeToGoogleSheets() {
           formatPrice(item.price1Rusya),
           formatPrice(item.price2BestRmt),
           formatPrice(item.priceDifference),
-          item.offerLink2 ? `=HYPERLINK("${item.offerLink2}"; "Перейти к предложению")` : ''
+          item.offerLink2 || ''
         ];
       }
       return [
@@ -183,7 +183,7 @@ async function writeToGoogleSheets() {
         formatPrice(item.price),
         '',
         '',
-        item.offerLink2 ? `=HYPERLINK("${item.offerLink2}"; "Перейти к предложению")` : ''
+        item.offerLink2 || ''
       ];
     });
 
@@ -198,42 +198,50 @@ async function writeToGoogleSheets() {
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
       range: 'DIFFERENCE!A1',
-      valueInputOption: 'USER_ENTERED', // Важно для работы HYPERLINK
+      valueInputOption: 'USER_ENTERED',
       resource: { values: [headers, ...rows] },
     });
 
-    // Форматируем колонку со ссылками
-    const formatLinkColumn = {
-      repeatCell: {
-        range: {
-          sheetId: differenceSheet.properties.sheetId,
-          startRowIndex: 1,
-          startColumnIndex: 5,
-          endColumnIndex: 6,
-        },
-        cell: {
-          userEnteredFormat: {
-            backgroundColor: { red: 1, green: 1, blue: 1 }, // Белый фон
-            textFormat: {
-              fontFamily: 'Roboto',
-              fontSize: 10,
-              foregroundColor: { red: 0.06, green: 0.45, blue: 0.87 },
-              underline: true
+    // Добавляем ссылки через rich text
+    const requests = differences.map((item, index) => {
+      if (item.offerLink2) {
+        return {
+          updateCells: {
+            range: {
+              sheetId: differenceSheet.properties.sheetId,
+              startRowIndex: index + 1,
+              endRowIndex: index + 2,
+              startColumnIndex: 5,
+              endColumnIndex: 6
             },
-            horizontalAlignment: 'CENTER',
-            verticalAlignment: 'MIDDLE'
+            rows: [{
+              values: [{
+                userEnteredValue: { stringValue: "Открыть" },
+                textFormatRuns: [
+                  {
+                    startIndex: 0,
+                    format: {
+                      link: { uri: item.offerLink2 },
+                      foregroundColor: { red: 0.06, green: 0.45, blue: 0.87 },
+                      underline: true
+                    }
+                  }
+                ]
+              }]
+            }],
+            fields: 'userEnteredValue.stringValue,textFormatRuns'
           }
-        },
-        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)'
+        };
       }
-    };
+      return null;
+    }).filter(Boolean);
 
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: SPREADSHEET_ID,
-      resource: {
-        requests: [formatLinkColumn]
-      }
-    });
+    if (requests.length > 0) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: { requests }
+      });
+    }
 
     // Устанавливаем фиксированную ширину для всех столбцов
     const setColumnWidth = {
