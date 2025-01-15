@@ -4064,14 +4064,20 @@
     "options2": "Акции, С заходом на аккаунт"
   },
   {
-    "differenceType": "❌❌❌ ADD ME",
+    "differenceType": "✅✅✅ SAME",
     "title": "Донат Clash Royale",
-    "descText": "🔵🔴🔵<< КОРОЛЕВСКАЯ ЩЕДРОСТЬ ▪︎ МОНАХ х3 или ГОБЛИНШТЕЙН х3 или МАЛЕНЬКИЙ ПРИНЦ х3 >>🔵🔴🔵",
-    "descTextEn": "🔵🔴🔵<< КОРОЛЕВСКАЯ ЩЕДРОСТЬ ▪︎ МОНАХ х3 или ГОБЛИНШТЕЙН х3 или МАЛЕНЬКИЙ ПРИНЦ х3 >>🔵🔴🔵",
-    "price": "850.00 ₽",
+    "descText1": "🔵🔴🔵<< КОРОЛЕВСКАЯ ЩЕДРОСТЬ ▪︎ МОНАХ х3 или ГОБЛИНШТЕЙН х3 или МАЛЕНЬКИЙ ПРИНЦ х3 >>🔵🔴🔵",
+    "descText2": "✅ ⚡ КОРОЛЕВСКАЯ ЩЕДРОСТЬ ▪︎ МОНАХ х3 или ГОБЛИНШТЕЙН х3 или МАЛЕНЬКИЙ ПРИНЦ х3 ⚡",
+    "descTextEn1": "🔵🔴🔵<< КОРОЛЕВСКАЯ ЩЕДРОСТЬ ▪︎ МОНАХ х3 или ГОБЛИНШТЕЙН х3 или МАЛЕНЬКИЙ ПРИНЦ х3 >>🔵🔴🔵",
+    "descTextEn2": "✅ ⚡ КОРОЛЕВСКАЯ ЩЕДРОСТЬ ▪︎ МОНАХ х3 или ГОБЛИНШТЕЙН х3 или МАЛЕНЬКИЙ ПРИНЦ х3 ⚡",
+    "price1Rusya": "850.00 ₽",
+    "price2BestRmt": "848.55 ₽",
+    "priceDifference": "1.45 ₽",
     "node_id": "1130",
-    "offerLink": "https://funpay.com/lots/offer?id=16897948",
-    "options": "Акции, С заходом на аккаунт"
+    "offerLink1": "https://funpay.com/lots/offer?id=16897948",
+    "offerLink2": "https://funpay.com/lots/offer?id=37230646",
+    "options1": "Акции, С заходом на аккаунт",
+    "options2": "Акции, С заходом на аккаунт"
   },
   {
     "differenceType": "✅✅✅ SAME",
@@ -4772,14 +4778,20 @@
     "options2": "С заходом на аккаунт"
   },
   {
-    "differenceType": "❌❌❌ ADD ME",
+    "differenceType": "✅✅✅ SAME",
     "title": "Донат CookieRun: Kingdom",
-    "descText": "🔴🔴🔴<< SHADOW PASS >>🔴🔴🔴",
-    "descTextEn": "🔴🔴🔴<< WHITE LILY PASS or LIGHTHOUSE PASS >>🔴🔴🔴",
-    "price": "1790 ₽",
+    "descText1": "🔴🔴🔴<< SHADOW PASS >>🔴🔴🔴",
+    "descText2": "✅⚡ SHADOW PASS ⚡",
+    "descTextEn1": "🔴🔴🔴<< WHITE LILY PASS or LIGHTHOUSE PASS >>🔴🔴🔴",
+    "descTextEn2": "✅⚡ SHADOW PASS ⚡",
+    "price1Rusya": "1790 ₽",
+    "price2BestRmt": "1787 ₽",
+    "priceDifference": "3.00 ₽",
     "node_id": "1823",
-    "offerLink": "https://funpay.com/lots/offer?id=32961843",
-    "options": "С заходом на аккаунт"
+    "offerLink1": "https://funpay.com/lots/offer?id=32961843",
+    "offerLink2": "https://funpay.com/lots/offer?id=37499820",
+    "options1": "С заходом на аккаунт",
+    "options2": "С заходом на аккаунт"
   },
   {
     "differenceType": "✅✅✅ SAME",
@@ -4899,25 +4911,31 @@
     "descText1": "🔴🔴🔴<< ЛЮБОЙ НАБОР ЗА 20 $ ▪︎ ( 1790руб. или 1890руб. ) >>🔴🔴🔴",
     "descText2": "✅⚡ ЛЮБОЙ НАБОР ЗА 20 $ ▪︎ ( 1790руб. или 1890руб. ) ⚡",
     "descTextEn1": "🔴🔴🔴<< ANY SET FOR $20 ▪︎ (RUB 1",
-    "descTextEn2": "✅⚡ ANY SET FOR $20 ▪︎ (1790rub. or 1890rub.) ⚡",
+    "descTextEn2": "✅⚡ ANY SET FOR $20 ▪︎ (1790 RUR) ⚡",
     "price1Rusya": "2350 ₽",
-    "price2BestRmt": "2343 ₽",
-    "priceDifference": "7.00 ₽",
+    "price2BestRmt": "1969 ₽",
+    "priceDifference": "381.00 ₽",
     "node_id": "1823",
     "offerLink1": "https://funpay.com/lots/offer?id=32961773",
-    "offerLink2": "https://funpay.com/lots/offer?id=37261165",
+    "offerLink2": "https://funpay.com/lots/offer?id=31214455",
     "options1": "С заходом на аккаунт",
     "options2": "С заходом на аккаунт"
   },
   {
-    "differenceType": "❌❌❌ ADD ME",
+    "differenceType": "✅✅✅ SAME",
     "title": "Донат CookieRun: Kingdom",
-    "descText": "🔴🔴🔴<< SHADOW PASS или ЛЮБОЙ НАБОР ЗА 15 $ ▪︎ ( 1390руб. ) >>🔴🔴🔴",
-    "descTextEn": "🔴🔴🔴<< WIND ARCHER PASS or ANY SET FOR $15 ▪︎ (1390rub.) >>🔴🔴🔴",
-    "price": "1790 ₽",
+    "descText1": "🔴🔴🔴<< SHADOW PASS или ЛЮБОЙ НАБОР ЗА 15 $ ▪︎ ( 1390руб. ) >>🔴🔴🔴",
+    "descText2": "✅⚡ SHADOW PASS или ЛЮБОЙ НАБОР ЗА 15 $ ▪︎ ( 1390руб. ) ⚡",
+    "descTextEn1": "🔴🔴🔴<< WIND ARCHER PASS or ANY SET FOR $15 ▪︎ (1390rub.) >>🔴🔴🔴",
+    "descTextEn2": "✅⚡ WIND ARCHER PASS or ANY SET FOR $15 ▪︎ (1390rub.) ⚡",
+    "price1Rusya": "1790 ₽",
+    "price2BestRmt": "1760 ₽",
+    "priceDifference": "30.00 ₽",
     "node_id": "1823",
-    "offerLink": "https://funpay.com/lots/offer?id=32961762",
-    "options": "С заходом на аккаунт"
+    "offerLink1": "https://funpay.com/lots/offer?id=32961762",
+    "offerLink2": "https://funpay.com/lots/offer?id=31214441",
+    "options1": "С заходом на аккаунт",
+    "options2": "С заходом на аккаунт"
   },
   {
     "differenceType": "✅✅✅ SAME",
@@ -12542,7 +12560,7 @@
     "title": "Пополнение баланса прочих игр",
     "descText": "🔴💎Л•Ю•Б•А•Я ▪︎ И•Г•Р•А💎<< ЛЮБАЯ ПОКУПКА В ИГРЕ >>(Услуга от 70 руб.+ Стоимость товара)💎🔴",
     "descTextEn": "🔴💎Л•Ю•Б•А•Я ▪︎ И•Г•Р•А💎<< ЛЮБАЯ ПОКУПКА В ИГРЕ >>(Услуга от 70 руб.+ Стоимость товара)💎🔴",
-    "price": "2053 ₽",
+    "price": "70.00 ₽",
     "node_id": "892",
     "offerLink": "https://funpay.com/lots/offer?id=34486956",
     "options": "С заходом на аккаунт"
@@ -13339,16 +13357,6 @@
   },
   {
     "differenceType": "➕➕➕ ADDITIONAL LOT",
-    "title": "Донат Clash Royale",
-    "descText": "✅ ⚡ АКЦИЯ С ЭВОЛЮЦИЕЙ ▪︎ 200редк. КАРТ ДЖ + РАЗРЯД (х3) или 2000 обыч КАРТ ДЖ + ТЕСЛА (х3) ⚡",
-    "descTextEn": "✅ ⚡ АКЦИЯ С ЭВОЛЮЦИЕЙ ▪︎ 200редк. КАРТ ДЖ + РАЗРЯД (х3) или 2000 обыч КАРТ ДЖ + ТЕСЛА (х3) ⚡",
-    "price": "590.79 ₽",
-    "node_id": "1130",
-    "offerLink": "https://funpay.com/lots/offer?id=37230646",
-    "options": "Акции, С заходом на аккаунт"
-  },
-  {
-    "differenceType": "➕➕➕ ADDITIONAL LOT",
     "title": "Донат CookieRun: Kingdom",
     "descText": "✅⚡ CAMELLIA MINI PASS ⚡",
     "descTextEn": "✅⚡ CAMELLIA MINI PASS ⚡",
@@ -13375,26 +13383,6 @@
     "price": "1760 ₽",
     "node_id": "1823",
     "offerLink": "https://funpay.com/lots/offer?id=31214553",
-    "options": "С заходом на аккаунт"
-  },
-  {
-    "differenceType": "➕➕➕ ADDITIONAL LOT",
-    "title": "Донат CookieRun: Kingdom",
-    "descText": "✅⚡ ЛЮБОЙ НАБОР ЗА 20 $ ▪︎ ( 1790руб. ) ⚡",
-    "descTextEn": "✅⚡ ANY SET FOR $20 ▪︎ (1790 RUR) ⚡",
-    "price": "1969 ₽",
-    "node_id": "1823",
-    "offerLink": "https://funpay.com/lots/offer?id=31214455",
-    "options": "С заходом на аккаунт"
-  },
-  {
-    "differenceType": "➕➕➕ ADDITIONAL LOT",
-    "title": "Донат CookieRun: Kingdom",
-    "descText": "✅⚡ WIND ARCHER PASS или ЛЮБОЙ НАБОР ЗА 15 $ ▪︎ ( 1390руб. ) ⚡",
-    "descTextEn": "✅⚡ WIND ARCHER PASS or ANY SET FOR $15 ▪︎ (1390rub.) ⚡",
-    "price": "1760 ₽",
-    "node_id": "1823",
-    "offerLink": "https://funpay.com/lots/offer?id=31214441",
     "options": "С заходом на аккаунт"
   },
   {

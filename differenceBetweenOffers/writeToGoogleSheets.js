@@ -174,7 +174,7 @@ async function writeToGoogleSheets() {
           formatPrice(item.price1Rusya),
           formatPrice(item.price2BestRmt),
           formatPrice(item.priceDifference),
-          item.offerLink || ''
+          item.offerLink2 ? `=HYPERLINK("${item.offerLink2}"; "Перейти к предложению")` : ''
         ];
       }
       return [
@@ -183,7 +183,7 @@ async function writeToGoogleSheets() {
         formatPrice(item.price),
         '',
         '',
-        item.offerLink || ''
+        item.offerLink2 ? `=HYPERLINK("${item.offerLink2}"; "Перейти к предложению")` : ''
       ];
     });
 
