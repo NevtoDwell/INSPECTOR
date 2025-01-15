@@ -13,6 +13,12 @@ const urls = [
   { url: 'https://funpay.com/users/292020/', file: 'user_2.json' }
 ];
 
+// Читаем список пропускаемых титулов
+const skipTitlesPath = join(__dirname, 'skip_titles.txt');
+const skipTitles = fs.existsSync(skipTitlesPath) 
+  ? fs.readFileSync(skipTitlesPath, 'utf-8').split('\n').map(title => title.trim()).filter(Boolean)
+  : [];
+
 async function fetchOffers(url, fileName) {
   try {
     // Параллельная загрузка русской и английской версий
@@ -47,6 +53,13 @@ async function fetchOffers(url, fileName) {
     const items = $('.tc-item').map((index, element) => {
       const $item = $(element);
       const $offer = $item.closest('.offer');
+      const title = $offer.find('.offer-list-title a').text().trim() || 'Неизвестный заголовок';
+      
+      // Пропускаем титулы из skip_titles.txt
+      if (skipTitles.includes(title)) {
+        return null;
+      }
+      
       const offerLink = $item.attr('href') || '';
       const offerId = offerLink.split('id=')[1];
       
@@ -55,7 +68,7 @@ async function fetchOffers(url, fileName) {
       
       return {
         profileName,
-        title: $offer.find('.offer-list-title a').text().trim() || 'Неизвестный заголовок',
+        title,
         descText: $item.find('.tc-desc-text').text().trim().split(',')[0],
         descTextEn: $enItem.find('.tc-desc-text').text().trim().split(',')[0],
         price: $item.find('.tc-price div').text().trim(),
@@ -63,7 +76,7 @@ async function fetchOffers(url, fileName) {
         offerLink,
         options: $item.find('.tc-desc-text').text().trim().split(',').slice(1).map(opt => opt.trim()).filter(opt => opt).join(', ') || 'С заходом на аккаунт'
       };
-    }).get();
+    }).get().filter(Boolean);
 
     const filePath = join(__dirname, fileName);
     fs.writeFileSync(filePath, JSON.stringify(items, null, 2), 'utf-8');

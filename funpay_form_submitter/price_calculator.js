@@ -32,6 +32,8 @@ export function calculatePrice(categoryId, originalPrice) {
             return Math.round(price /  1.13);
         case "1523": // STAR WARS
             return Math.round(price /  1.187);
+        case "1476": // STUBMLE GUYS
+            return Math.round(price /  1.099);
         default:
             // По умолчанию возвращаем оригинальную цену
             return price;

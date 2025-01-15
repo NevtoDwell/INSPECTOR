@@ -25,7 +25,7 @@ class FunPayFormProcessor {
         text = text.trim();
         
         // Заменяем группы эмодзи на один ⚡, но сохраняем ➕
-        text = text.replace(/(?!➕)[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}<<>>]+/gu, '⚡');
+        text = text.replace(/(?!➕)[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1F100}-\u{1F1FF}<<>>]+/gu, '⚡');
         
         // Добавляем ✅ в начало
         text = `✅ ${text}`;
@@ -162,11 +162,31 @@ class FunPayFormProcessor {
                 }
             });
 
-            // Проверяем успешность отправки и удаляем оффер только здесь
-            if (response.status === 302 || response.status === 200) {
-                console.log(' ✅ Форма успешно отправлена');
+            // Проверяем успешность отправки формы
+            if (response.status === 302) {
+                // Проверяем URL редиректа
+                const redirectUrl = response.headers.location;
+                if (!redirectUrl || !redirectUrl.includes('/lots/')) {
+                    console.error(' ❌ Неверный URL редиректа:', redirectUrl);
+                    return false;
+                }
+                console.log(' ✅ Форма успешно отправлена (редирект на:', redirectUrl, ')');
                 try {
-                    // Удаляем оффер только после успешной отправки
+                    await this.removeProcessedOffer(offerData.offer);
+                    console.log(' 🗑️ Оффер успешно удален из списка');
+                } catch (deleteError) {
+                    console.error(' ❌ Ошибка при удалении оффера:', deleteError);
+                }
+                return true;
+            } else if (response.status === 200) {
+                // Проверяем содержимое ответа на наличие ошибок
+                if (response.data.includes('error') || response.data.includes('ошибка')) {
+                    console.error(' ❌ Сервер вернул ошибку в ответе');
+                    console.error(' ❌ Текст ответа:', response.data);
+                    return false;
+                }
+                console.log(' ✅ Форма успешно отправлена (статус 200)');
+                try {
                     await this.removeProcessedOffer(offerData.offer);
                     console.log(' 🗑️ Оффер успешно удален из списка');
                 } catch (deleteError) {
@@ -176,7 +196,9 @@ class FunPayFormProcessor {
             }
 
             console.error(' ❌ Ошибка при отправке формы. Статус:', response.status);
-            console.error(' ❌ Ответ сервера:', response.data);
+            if (response.data) {
+                console.error(' ❌ Ответ сервера:', response.data);
+            }
             return false;
         } catch (error) {
             console.error(' ❌ Ошибка при отправке формы:', error.message);
@@ -195,7 +217,9 @@ class FunPayFormProcessor {
 
             // Фильтруем офферы только с node_id "1142" и "1560"
             const filteredOffers = offers.filter(o => 
-                (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127" || o.node_id === "1130" || o.node_id === "1129" || o.node_id === "1135" || o.node_id === "1697" || o.node_id === "1755" || o.node_id === "609" || o.node_id === "1523") && 
+                (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127" || o.node_id === "1130" || o.node_id === "1129" || o.node_id === "1135" || o.node_id === "1697" || o.node_id === "1755" || o.node_id === "609" || o.node_id === "1523" 
+                    || o.node_id === "1476"
+                ) && 
                 o.descText && 
                 o.price
             );

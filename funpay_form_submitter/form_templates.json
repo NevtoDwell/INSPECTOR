@@ -177,6 +177,33 @@
     "price": "",
     "deactivate_after_sale": ""
   },
+  "1476": {
+    "csrf_token": "",
+    "node_id": "",
+    "server_id": {
+      "9719": "PC",
+      "9720": "Android / iOS"
+    },
+    "fields[method]": {
+      "По нику": "По нику",
+      "С заходом на аккаунт": "С заходом на аккаунт"
+    },
+    "fields[type]": {
+      "Жетоны": "Жетоны",
+      "%Комплекты-Packs": "Комплекты",
+      "Акции": "Акции",
+      "Стартовый пакет": "Стартовый пакет",
+      "Stumble Pass": "Stumble Pass",
+      "Прочее": "Прочее"
+    },
+    "fields[summary][ru]": "",
+    "fields[summary][en]": "",
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "active": "",
+    "price": "",
+    "deactivate_after_sale": ""
+  },
   "1486": {
     "csrf_token": "",
     "node_id": "",
