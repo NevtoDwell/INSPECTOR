@@ -139,14 +139,6 @@ async function writeToGoogleSheets() {
       JSON.parse(fs.readFileSync(join(__dirname, 'additional_lots.json'), 'utf-8'))
     ]);
 
-    // Создаем Map для быстрого поиска ссылок
-    const linkMap = new Map();
-    profileNames.forEach(item => {
-      if (item.title) {
-        linkMap.set(item.title.toLowerCase(), item.offerLink);
-      }
-    });
-
     // Получение информации о листах
     const { data: { sheets: sheetsList } } = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     const differenceSheet = sheetsList.find(sheet => sheet.properties.title === 'DIFFERENCE');
