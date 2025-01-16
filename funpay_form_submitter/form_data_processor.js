@@ -211,8 +211,8 @@ class FunPayFormProcessor {
         try {
             const authData = await getAuthData();
             this.config = {
-                ...JSON.parse(fs.readFileSync(this.configPath, 'utf8')),
-                ...authData
+                cookies: authData.cookies,
+                csrf_token: authData.csrf_token
             };
         } catch (error) {
             throw new Error('НЕ УДАЛОСЬ ИНИЦИАЛИЗИРОВАТЬ ДАННЫЕ АВТОРИЗАЦИИ');
