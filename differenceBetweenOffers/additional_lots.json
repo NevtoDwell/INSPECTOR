@@ -612,6 +612,15 @@
     "options": "Особая акция, Официально (рекомендуется), С заходом на аккаунт"
   },
   {
+    "title": "Донат Call of Dragons",
+    "descText": "Заказ",
+    "descTextEn": "Offer",
+    "price": "1709 ₽",
+    "node_id": "1379",
+    "offerLink": "https://funpay.com/lots/offer?id=37526262",
+    "options": "Наборы"
+  },
+  {
     "title": "Прочее ChatGPT",
     "descText": "⭕⚡ CHATGPT 4 PRO ⚡ 1 МЕСЯЦ ⚡ ПОДПИСКА НА ВАШ АККАУНТ ⚡ ОФИЦИАЛЬНЫЙ ДОНАТ ⚡ CHAT GPT ⚡ ГПТ",
     "descTextEn": "⭕⚡ CHATGPT 4 PRO ⚡ 1 MONTH ⚡ SUBSCRIPTION TO YOUR ACCOUNT ⚡ OFFICIAL DONATION ⚡ CHAT GPT ⚡ GPT",
@@ -1123,15 +1132,6 @@
     "node_id": "1000",
     "offerLink": "https://funpay.com/lots/offer?id=14795479",
     "options": "С заходом на аккаунт, Официально (рекомендуется), PC, 300 кристаллов сотворения"
-  },
-  {
-    "title": "Донат Girls Frontline 2: Exilium",
-    "descText": "Заказ",
-    "descTextEn": "Offer",
-    "price": "2420 ₽",
-    "node_id": "3017",
-    "offerLink": "https://funpay.com/lots/offer?id=36339225",
-    "options": "С заходом на аккаунт"
   },
   {
     "title": "Донат Girls Frontline 2: Exilium",
@@ -1819,15 +1819,6 @@
   },
   {
     "title": "Донат Star Wars",
-    "descText": "Доплата",
-    "descTextEn": "Offer",
-    "price": "1447 ₽",
-    "node_id": "609",
-    "offerLink": "https://funpay.com/lots/offer?id=37364870",
-    "options": "С заходом на аккаунт"
-  },
-  {
-    "title": "Донат Star Wars",
     "descText": "✅ ⚡ КОМПЛЕКТ ▪︎ СКОРОСТЬ СВЕТА ▪︎ ДИНА ДЖАРИНА ▪︎ 𝐀𝐍𝐃𝐑𝐎𝐈𝐃 / 𝐈𝐎𝐒 / 𝐄𝐀 ⚡",
     "descTextEn": "✅ ⚡ SET ▪︎ LIGHT SPEED ▪︎ DINA JARINA ▪︎ 𝐀𝐍𝐃𝐑𝐎𝐈𝐃 / 𝐈𝐎𝐒 / 𝐄𝐀 ⚡",
     "price": "2851 ₽",
@@ -2484,13 +2475,22 @@
     "options": "300 монохромов, С заходом на аккаунт"
   },
   {
-    "title": "Донат Zooba",
-    "descText": "✅ ⚡ ЛЮБОЙ ДОНАТ ▪︎ ПОКУПКА ЛЮБОГО НАБОРА В ИГРЕ ▪︎ ( Услуга от 70 руб.+ Стоимость товара ) ⚡",
-    "descTextEn": "✅ ⚡ ЛЮБОЙ ДОНАТ ▪︎ ПОКУПКА ЛЮБОГО НАБОРА В ИГРЕ ▪︎ ( Услуга от 70 руб.+ Стоимость товара ) ⚡",
-    "price": "70.39 ₽",
-    "node_id": "1755",
-    "offerLink": "https://funpay.com/lots/offer?id=37262821",
-    "options": "Наборы"
+    "title": "Донат в мобильных играх",
+    "descText": "1",
+    "descTextEn": "1",
+    "price": "1567 ₽",
+    "node_id": "891",
+    "offerLink": "https://funpay.com/lots/offer?id=37196034",
+    "options": "С заходом на аккаунт"
+  },
+  {
+    "title": "Донат в мобильных играх",
+    "descText": "Под заказ",
+    "descTextEn": "Под заказ",
+    "price": "2670 ₽",
+    "node_id": "891",
+    "offerLink": "https://funpay.com/lots/offer?id=35040325",
+    "options": "С заходом на аккаунт"
   },
   {
     "title": "Донат в мобильных играх",

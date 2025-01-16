@@ -25,7 +25,7 @@ class FunPayFormProcessor {
         text = text.trim();
         
         // Заменяем группы эмодзи на один ⚡, но сохраняем ➕
-        text = text.replace(/(?!➕)[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1F100}-\u{1F1FF}<<>>]+/gu, '⚡');
+        text = text.replace(/(?!➕)[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}<<>>]+/gu, '⚡');
         
         // Добавляем ✅ в начало
         text = `✅ ${text}`;
@@ -162,15 +162,9 @@ class FunPayFormProcessor {
                 }
             });
 
-            // Проверяем успешность отправки формы
+            // Проверяем статус ответа
             if (response.status === 302) {
-                // Проверяем URL редиректа
-                const redirectUrl = response.headers.location;
-                if (!redirectUrl || !redirectUrl.includes('/lots/')) {
-                    console.error(' ❌ Неверный URL редиректа:', redirectUrl);
-                    return false;
-                }
-                console.log(' ✅ Форма успешно отправлена (редирект на:', redirectUrl, ')');
+                console.log(' ✅ Форма успешно отправлена (редирект)');
                 try {
                     await this.removeProcessedOffer(offerData.offer);
                     console.log(' 🗑️ Оффер успешно удален из списка');
@@ -179,12 +173,42 @@ class FunPayFormProcessor {
                 }
                 return true;
             } else if (response.status === 200) {
-                // Проверяем содержимое ответа на наличие ошибок
-                if (response.data.includes('error') || response.data.includes('ошибка')) {
-                    console.error(' ❌ Сервер вернул ошибку в ответе');
-                    console.error(' ❌ Текст ответа:', response.data);
-                    return false;
+                // Проверяем тип данных ответа
+                const responseText = typeof response.data === 'string' 
+                    ? response.data 
+                    : JSON.stringify(response.data);
+
+                // Проверяем наличие ошибок в ответе
+                try {
+                    const jsonResponse = JSON.parse(responseText);
+                    if (jsonResponse.error === true || (typeof jsonResponse.error === 'string' && jsonResponse.error.toLowerCase() === 'true')) {
+                        console.error(' ❌ Сервер вернул ошибку в ответе');
+                        console.error(' ❌ Текст ответа:', responseText);
+                        return false;
+                    }
+                    
+                    // Проверяем URL в ответе
+                    if (!jsonResponse.url || !jsonResponse.url.includes('/lots/')) {
+                        console.error(' ❌ Неверный формат URL в ответе');
+                        console.error(' ❌ Текст ответа:', responseText);
+                        return false;
+                    }
+
+                    // Проверяем done в ответе
+                    if (!jsonResponse.done) {
+                        console.error(' ❌ Операция не завершена успешно');
+                        console.error(' ❌ Текст ответа:', responseText);
+                        return false;
+                    }
+                } catch (e) {
+                    // Если не удалось распарсить JSON, проверяем текст на наличие слова "ошибка"
+                    if (responseText.toLowerCase().includes('ошибка')) {
+                        console.error(' ❌ Сервер вернул ошибку в ответе');
+                        console.error(' ❌ Текст ответа:', responseText);
+                        return false;
+                    }
                 }
+
                 console.log(' ✅ Форма успешно отправлена (статус 200)');
                 try {
                     await this.removeProcessedOffer(offerData.offer);
@@ -197,7 +221,10 @@ class FunPayFormProcessor {
 
             console.error(' ❌ Ошибка при отправке формы. Статус:', response.status);
             if (response.data) {
-                console.error(' ❌ Ответ сервера:', response.data);
+                const responseText = typeof response.data === 'string' 
+                    ? response.data 
+                    : JSON.stringify(response.data);
+                console.error(' ❌ Ответ сервера:', responseText);
             }
             return false;
         } catch (error) {
@@ -218,7 +245,7 @@ class FunPayFormProcessor {
             // Фильтруем офферы только с node_id "1142" и "1560"
             const filteredOffers = offers.filter(o => 
                 (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127" || o.node_id === "1130" || o.node_id === "1129" || o.node_id === "1135" || o.node_id === "1697" || o.node_id === "1755" || o.node_id === "609" || o.node_id === "1523" 
-                    || o.node_id === "1476"
+                    || o.node_id === "1476" || o.node_id === "1133"
                 ) && 
                 o.descText && 
                 o.price
@@ -279,21 +306,21 @@ class FunPayFormProcessor {
 
                     try {
                         console.log(`Обрабатываем предложение: ${JSON.stringify(offer)}`);
-                        const result = await this.submitForm({
-                            formData,
+                        const submitResult = await this.submitForm({
                             offer,
+                            formData,
                             cookies: this.config.cookies,
                             url: `https://funpay.com/lots/offerEdit?node=${offer.node_id}`,
                             submitUrl: 'https://funpay.com/lots/offerSave'
                         });
 
-                        if (!result) {
-                            console.error(`❌ Ошибка при отправке оффера ${index + 1}`);
+                        if (submitResult) {
+                            console.log('Предложение успешно добавлено');
+                            await this.removeProcessedOffer(offer);
+                            console.log('Предложение удалено из списка');
+                        } else {
+                            console.log('❌ Ошибка при отправке оффера', index + 1);
                         }
-
-                        console.log('Предложение успешно добавлено');
-                        await this.removeProcessedOffer(offer);
-                        console.log('Предложение удалено из списка');
 
                         console.log(`⏳ Ожидание 2 секунд перед следующим оффером...`);
                         await new Promise(resolve => setTimeout(resolve, 2000));

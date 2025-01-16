@@ -196,6 +196,17 @@ function generateTemplateFromJson(nodeId) {
                             price: calculatePrice("1476", offer.price),
                             deactivate_after_sale: ' ',
                         }; 
+                    case "1133": // WILD
+                        return {
+                            ...formData,
+                            'fields[type]': extractFieldValue(template, 'fields[type]', offer),
+                            'fields[summary][ru]': FunPayFormProcessor.formatDescription(offer.descText),
+                            'fields[summary][en]': FunPayFormProcessor.formatDescription(offer.descTextEn),
+                            'fields[desc][ru]': config.descRu,
+                            'fields[desc][en]': config.descEn,
+                            price: calculatePrice("1133", offer.price),
+                            amount: '999'
+                        };
                         
                     default:
                         console.error(`Unknown node ID: ${nodeId}`);
@@ -221,7 +232,8 @@ export const formTemplates = {
     "1755": generateTemplateFromJson("1755"),
     "609": generateTemplateFromJson("609"),
     "1523": generateTemplateFromJson("1523"),
-    "1476": generateTemplateFromJson("1476")
+    "1476": generateTemplateFromJson("1476"),
+    "1133": generateTemplateFromJson("1133")
 };
 
 // Функция для получения шаблона формы по ID категории
