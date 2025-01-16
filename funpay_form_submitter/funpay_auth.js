@@ -11,7 +11,7 @@ function decodeHtmlEntities(str) {
               .replace(/&#39;/g, "'");
 }
 
-export async function getAuthData(cookies) {
+export async function getAuthData() {
     try {
         console.log(`${getTimestamp()} ${chalk.yellow.bold('ПОЛУЧЕНИЕ ДАННЫХ АВТОРИЗАЦИИ')}`);
         
@@ -22,8 +22,7 @@ export async function getAuthData(cookies) {
                 'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                ...(cookies && { 'Cookie': cookies })
+                'Upgrade-Insecure-Requests': '1'
             }
         });
 
@@ -46,13 +45,13 @@ export async function getAuthData(cookies) {
             }
             
             // Получаем cookies из ответа
-            const newCookies = response.headers['set-cookie'];
-            if (!newCookies) {
+            const cookies = response.headers['set-cookie'];
+            if (!cookies) {
                 throw new Error('НЕ УДАЛОСЬ ПОЛУЧИТЬ COOKIES');
             }
 
             // Преобразуем массив cookies в строку
-            const cookieString = newCookies.map(cookie => cookie.split(';')[0]).join('; ');
+            const cookieString = cookies.map(cookie => cookie.split(';')[0]).join('; ');
 
             console.log(`${getTimestamp()} ${chalk.green.bold('ДАННЫЕ АВТОРИЗАЦИИ ПОЛУЧЕНЫ')} (CSRF-TOKEN: ${chalk.blue(appData["csrf-token"])})`);
 

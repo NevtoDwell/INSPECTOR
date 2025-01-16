@@ -209,10 +209,9 @@ class FunPayFormProcessor {
 
     async init() {
         try {
-            this.config = JSON.parse(fs.readFileSync(this.configPath, 'utf8'));
-            const authData = await getAuthData(this.config.cookies);
+            const authData = await getAuthData();
             this.config = {
-                ...this.config,
+                ...JSON.parse(fs.readFileSync(this.configPath, 'utf8')),
                 ...authData
             };
         } catch (error) {
