@@ -10262,14 +10262,20 @@
     "options2": "Акции, С заходом на аккаунт"
   },
   {
-    "differenceType": "❌❌❌ ADD ME",
+    "differenceType": "✅✅✅ SAME",
     "title": "Донат Stumble Guys",
-    "descText": "🔵🔴🔵<< КОМПЛЕКТ ОРИГИНАЛЬНЫХ ПЕРСОНАЖЕЙ ➕ Boxer Amin ОБЛИК ➕ Silver Fox ОБЛИК ➕Stumble James >>🔵🔴🔵",
-    "descTextEn": "🔵🔴🔵<< ORIGINAL CHARACTERS SET ➕ Boxer Amin SKIN ➕ Silver Fox SKIN ➕Stumble James >>🔵🔴🔵",
-    "price": "150.00 ₽",
+    "descText1": "🔵🔴🔵<< КОМПЛЕКТ ОРИГИНАЛЬНЫХ ПЕРСОНАЖЕЙ ➕ Boxer Amin ОБЛИК ➕ Silver Fox ОБЛИК ➕Stumble James >>🔵🔴🔵",
+    "descText2": "✅ ⚡ КОМПЛЕКТ ОРИГИНАЛЬНЫХ ПЕРСОНАЖЕЙ ➕ Boxer Amin ОБЛИК ➕ Silver Fox ОБЛИК ➕Stumble James ⚡",
+    "descTextEn1": "🔵🔴🔵<< ORIGINAL CHARACTERS SET ➕ Boxer Amin SKIN ➕ Silver Fox SKIN ➕Stumble James >>🔵🔴🔵",
+    "descTextEn2": "✅ ⚡ ORIGINAL CHARACTERS SET ➕ Boxer Amin SKIN ➕ Silver Fox SKIN ➕Stumble James ⚡",
+    "price1Rusya": "150.00 ₽",
+    "price2BestRmt": "149.57 ₽",
+    "priceDifference": "0.43 ₽",
     "node_id": "1476",
-    "offerLink": "https://funpay.com/lots/offer?id=22043295",
-    "options": "Акции, С заходом на аккаунт"
+    "offerLink1": "https://funpay.com/lots/offer?id=22043295",
+    "offerLink2": "https://funpay.com/lots/offer?id=37548224",
+    "options1": "Акции, С заходом на аккаунт",
+    "options2": "Акции, С заходом на аккаунт"
   },
   {
     "differenceType": "✅✅✅ SAME",
@@ -10283,7 +10289,7 @@
     "priceDifference": "0.35 ₽",
     "node_id": "1476",
     "offerLink1": "https://funpay.com/lots/offer?id=22043284",
-    "offerLink2": "https://funpay.com/lots/offer?id=37538552",
+    "offerLink2": "https://funpay.com/lots/offer?id=37548214",
     "options1": "Акции, С заходом на аккаунт",
     "options2": "Акции, С заходом на аккаунт"
   },
@@ -12378,7 +12384,7 @@
     "title": "Донат AFK Arena",
     "descText": "✅⚡ ПОКУПКА ЛЮБОГО НАБОРА / АКЦИИ (цена указана за набор 5 $) ⚡ 𝐀𝐍𝐃𝐑𝐎𝐈𝐃 / 𝐈𝐎𝐒",
     "descTextEn": "✅⚡ PURCHASE OF ANY SET / PROMOTION (price is per set $5) ⚡ 𝐀𝐍𝐃𝐑𝐎𝐈𝐃 / 𝐈𝐎𝐒",
-    "price": "649.69 ₽",
+    "price": "728.11 ₽",
     "node_id": "1201",
     "offerLink": "https://funpay.com/lots/offer?id=28980599",
     "options": "Акции"

@@ -69,7 +69,7 @@ class FunPayFormProcessor {
 
     async checkOfferExists(offerData) {
         try {
-            console.log(`${getTimestamp()} ${chalk.gray('ℹ')} Проверяем наличие предложения на сайте...`);
+            console.log(`${getTimestamp()} ${chalk.yellow.bold('ПРОВЕРКА НАЛИЧИЯ ПРЕДЛОЖЕНИЯ НА САЙТЕ')}`);
             
             // URL страницы с предложениями пользователя (используем категорию из node_id)
             const userOffersUrl = `https://funpay.com/lots/${offerData.offer.node_id}/trade`;
@@ -105,7 +105,7 @@ class FunPayFormProcessor {
                 return true;
             }
 
-            console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} Не удалось получить страницу с предложениями (статус: ${response.status})`);
+            console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} НЕ УДАЛОСЬ ПОЛУЧИТЬ СТРАНИЦУ С ПРЕДЛОЖЕНИЯМИ (СТАТУС: ${response.status})`);
             return false;
         } catch (error) {
             console.log('\nДетали ошибки:');
@@ -156,7 +156,7 @@ class FunPayFormProcessor {
                 }
             });
 
-            console.log(`${getTimestamp()} ${chalk.gray('ℹ')} Ожидаем 5 секунд перед проверкой...`);
+            console.log(`${getTimestamp()} ${chalk.blue.bold('ОЖИДАНИЕ 5 СЕКУНД')}`);
             await new Promise(resolve => setTimeout(resolve, 5000));
             
             const exists = await this.checkOfferExists(offerData);
@@ -165,7 +165,7 @@ class FunPayFormProcessor {
                 try {
                     await this.removeProcessedOffer(offerData.offer);
                 } catch (deleteError) {
-                    console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} Предложение создано, но не удалено из списка`);
+                    console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} ПРЕДЛОЖЕНИЕ СОЗДАНО, НО НЕ УДАЛЕНО ИЗ СПИСКА`);
                 }
                 return true;
             }
@@ -185,11 +185,9 @@ class FunPayFormProcessor {
 
     async readOffersToAdd() {
         try {
-            console.log(`${getTimestamp()} ${chalk.blue.bold('📂 ЧТЕНИЕ:')} Загрузка файла предложений...`);
             const data = fs.readFileSync(this.offersPath, 'utf8');
-            
-            console.log(`${getTimestamp()} ${chalk.blue.bold('🔄 ОБРАБОТКА:')} Парсинг JSON...`);
             const offers = JSON.parse(data);
+            
 
             // Фильтруем офферы только с node_id "1142" и "1560"
             const filteredOffers = offers.filter(o => 
@@ -201,12 +199,12 @@ class FunPayFormProcessor {
         );
 
         if (filteredOffers.length === 0) {
-            console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} Нет предложений для обработки`);
+            console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} НЕТ ПРЕДЛОЖЕНИЙ ДЛЯ ОБРАБОТКИ`);
             return [];
         }
 
-        console.log(`${getTimestamp()} ${chalk.blue.bold('📦 НАЧАЛО ОБРАБОТКИ ПРЕДЛОЖЕНИЙ...')}`);
-        console.log(`${getTimestamp()} ${chalk.blue.bold(`Найдено новых предложений: ${chalk.yellow.bold(filteredOffers.length)}`)}\n`);
+        console.log(`${getTimestamp()} ${chalk.blue.bold(`ОБРАБОТКА ПРЕДЛОЖЕНИЙ...`)}`);
+        console.log(`${getTimestamp()} ${chalk.blue.bold(`НАЙДЕНО НОВЫХ ПРЕДЛОЖЕНИЙ: ${chalk.yellow.bold(filteredOffers.length)}`)}\n`);
         
         let successCount = 0;
         let failedCount = 0;
@@ -217,7 +215,7 @@ class FunPayFormProcessor {
         return reversedOffers;
 
     } catch (error) {
-        console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} При чтении файла: ${error.message}`);
+        console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} ПРИ ЧТЕНИИ ФАЙЛА: ${error.message}`);
         return [];
     }
 }
@@ -225,7 +223,7 @@ class FunPayFormProcessor {
     async processAllOffers() {
         const offers = await this.readOffersToAdd();
         if (!offers || offers.length === 0) {
-            console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} Нет предложений для обработки`);
+            console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} НЕТ ПРЕДЛОЖЕНИЙ ДЛЯ ОБРАБОТКИ`);
             return;
         }
 
@@ -239,7 +237,7 @@ class FunPayFormProcessor {
 
             const template = getFormTemplate(offers[i].node_id);
             if (!template) {
-                console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ПРОПУСК:')} неподдерживаемый node_id ${offers[i].node_id}\n`);
+                console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ПРОПУСК:')} НЕПОДДЕРЖИВАЕМЫЙ NODE_ID ${offers[i].node_id}\n`);
                 continue;
             }
 
@@ -249,9 +247,9 @@ class FunPayFormProcessor {
                 descEn: this.descEn
             });
 
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Название:')} ${chalk.yellow(offers[i].title)}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Предложение:')} ${chalk.yellow(formData['fields[summary][ru]'] || 'Нет названия')}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Цена:')} ${chalk.yellow(offers[i].price)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('НАЗВАНИЕ:')} ${chalk.yellow(offers[i].title)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ПРЕДЛОЖЕНИЕ:')} ${chalk.yellow(formData['fields[summary][ru]'] || 'НЕТ НАЗВАНИЯ')}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ЦЕНА:')} ${chalk.yellow(offers[i].price)}`);
             console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ID:')} ${chalk.yellow(offers[i].node_id)}`);
             console.log(chalk.yellow('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
 
@@ -265,32 +263,32 @@ class FunPayFormProcessor {
             if (success) {
                 successCount++;
                 console.log('\n' + chalk.green('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-                console.log(`${chalk.green('┃')}      ${chalk.green.bold('УСПЕХ: Предложение успешно добавлено')}`);
+                console.log(`${chalk.green('┃')}      ${chalk.green.bold('УСПЕХ: ПРЕДЛОЖЕНИЕ УСПЕШНО ДОБАВЛЕНО')}`);
                 console.log(chalk.green('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
             } else {
                 failedCount++;
                 // Выводим данные формы
-                console.log('\nОтправленные данные формы:');
+                console.log('\nОТПРАВЛЕННЫЕ ДАННЫЕ ФОРМЫ:');
                 for (const [key, value] of Object.entries(formData)) {
                     console.log(`${key}: ${value}`);
                 }
 
                 console.log('\n' + chalk.red('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
                 console.log(`${chalk.red('┃')}      ${chalk.red.bold('ОШИБКА ДОБАВЛЕНИЯ')}`);
-                console.log(`${chalk.red('┃')}      ${chalk.white.bold('Не удалось добавить предложение')}`);
+                console.log(`${chalk.red('┃')}      ${chalk.white.bold('НЕ УДАЛОСЬ ДОБАВИТЬ ПРЕДЛОЖЕНИЕ')}`);
                 console.log(chalk.red('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
             }
 
             if (i < offers.length - 1) {
-                console.log(`${getTimestamp()} ${chalk.blue.bold('⏳ ОЖИДАНИЕ:')} Пауза 5 секунд перед следующим предложением...\n`);
+                console.log(`${getTimestamp()} ${chalk.blue.bold('ОЖИДАНИЕ 5 СЕКУНД')}`);
                 await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
 
         console.log('\n' + chalk.green('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
         console.log(`${chalk.green('┃')}      ${chalk.green.bold('ОБРАБОТКА ЗАВЕРШЕНА')}`);
-        console.log(`${chalk.green('┃')}      ${chalk.white.bold(`Всего предложений: ${chalk.yellow.bold(offers.length)}`)}`);
-        console.log(`${chalk.green('┃')}      ${chalk.white.bold(`Успешно: ${chalk.green.bold(successCount)} ${chalk.white.bold('/')} Неудачно: ${chalk.red.bold(failedCount)}`)}`);
+        console.log(`${chalk.green('┃')}      ${chalk.white.bold(`ВСЕГО ПРЕДЛОЖЕНИЙ: ${chalk.yellow.bold(offers.length)}`)}`);
+        console.log(`${chalk.green('┃')}      ${chalk.white.bold(`УСПЕШНО: ${chalk.green.bold(successCount)} ${chalk.white.bold('/')} НЕУДАЧНО: ${chalk.red.bold(failedCount)}`)}`);
         console.log(chalk.green('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
     }
 
