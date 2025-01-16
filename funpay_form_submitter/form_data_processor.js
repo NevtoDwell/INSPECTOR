@@ -247,10 +247,10 @@ class FunPayFormProcessor {
                 descEn: this.descEn
             });
 
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('НАЗВАНИЕ:')} ${chalk.yellow(offers[i].title)}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ПРЕДЛОЖЕНИЕ:')} ${chalk.yellow(formData['fields[summary][ru]'] || 'НЕТ НАЗВАНИЯ')}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ЦЕНА:')} ${chalk.yellow(offers[i].price)}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ID:')} ${chalk.yellow(offers[i].node_id)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.yellow.bold('НАЗВАНИЕ:')} ${chalk.yellow(offers[i].title)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.yellow.bold('ПРЕДЛОЖЕНИЕ:')} ${chalk.yellow(formData['fields[summary][ru]'] || 'НЕТ НАЗВАНИЯ')}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.yellow.bold('ЦЕНА:')} ${chalk.yellow(offers[i].price)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.yellow.bold('ID:')} ${chalk.yellow(offers[i].node_id)}`);
             console.log(chalk.yellow('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
 
             const success = await this.submitForm({
@@ -268,9 +268,9 @@ class FunPayFormProcessor {
             } else {
                 failedCount++;
                 // Выводим данные формы
-                console.log('\nОТПРАВЛЕННЫЕ ДАННЫЕ ФОРМЫ:');
+                console.log(`\n${getTimestamp()} ${chalk.yellow.bold('ОТПРАВЛЕННЫЕ ДАННЫЕ ФОРМЫ:')}`);
                 for (const [key, value] of Object.entries(formData)) {
-                    console.log(`${key}: ${value}`);
+                    console.log(`${chalk.white(key)}: ${chalk.yellow(value)}`);
                 }
 
                 console.log('\n' + chalk.red('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
