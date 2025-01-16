@@ -1,32 +1,32 @@
 // Вспомогательная функция для форматирования описания
 import { FunPayFormProcessor } from './form_data_processor.js';
-import templates from './form_templates.json' assert { type: 'json' };
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { calculatePrice } from './price_calculator.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Загружаем JSON файл через fs
+const templatesPath = join(__dirname, 'form_templates.json');
+const templates = JSON.parse(fs.readFileSync(templatesPath, 'utf8'));
 
 // Функция для извлечения значений полей из опций
 function extractFieldValue(template, fieldName, offer) {
-    console.log(`\nExtracting ${fieldName}:`);
-    console.log('Template field:', template[fieldName]);
-    console.log('Offer:', offer);
-    console.log('Offer options:', offer.options);
-    
     if (!template[fieldName]) return ' ';
     if (!offer.options) return ' ';
     
     // Разбиваем options на массив и очищаем от пробелов
     const optionsArray = offer.options.split(',').map(opt => opt.trim());
-    console.log('Options array:', optionsArray);
     
     const entries = Object.entries(template[fieldName]);
-    console.log('Entries:', entries);
     
     const foundEntry = entries.find(([_, value]) => {
         return optionsArray.includes(value);
     });
     
-    const result = foundEntry ? foundEntry[0] : ' ';
-    console.log('Result:', result);
-    return result;
+    return foundEntry ? foundEntry[0] : ' ';
 }
 
 // Функция для генерации шаблона из JSON
@@ -56,7 +56,7 @@ function generateTemplateFromJson(nodeId) {
                             'fields[quantity]': offer.descText,
                             'fields[desc][ru]': config.descRu,
                             'fields[payment_msg][ru]': ' ',
-                            price: calculatePrяёice("965", offer.price),
+                            price: calculatePrice("965", offer.price),
                             amount: '999'
                         };
 
