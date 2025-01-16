@@ -84,35 +84,43 @@ class FunPayFormProcessor {
             if (response.status === 200) {
                 const html = response.data;
                 
+                // Проверяем наличие node_id в URL
+                const nodeIdPattern = `node=${offerData.offer.node_id}`;
+                if (!html.includes(nodeIdPattern)) {
+                    return false;
+                }
+
                 // Проверяем наличие описания предложения на странице
                 const description = offerData.formData['fields[summary][ru]'];
-                if (description && html.includes(description)) {
-                    console.log(`${getTimestamp()} ${chalk.green.bold('✅ УСПЕХ:')} Предложение найдено на сайте по описанию!`);
-                    return true;
+                if (!description || !html.includes(description)) {
+                    return false;
                 }
                 
                 // Проверяем наличие цены предложения
                 const price = offerData.formData.price;
-                if (price && html.includes(price)) {
-                    console.log(`${getTimestamp()} ${chalk.green.bold('✅ УСПЕХ:')} Предложение найдено на сайте по цене!`);
-                    return true;
+                if (!price || !html.includes(price)) {
+                    return false;
                 }
 
-                return false;
+                return true;
             }
 
             console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} Не удалось получить страницу с предложениями (статус: ${response.status})`);
             return false;
         } catch (error) {
-            console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} При проверке предложения: ${error.message}`);
+            console.log('\nДетали ошибки:');
+            console.log('Сообщение:', error.message);
+            if (error.response) {
+                console.log('Статус:', error.response.status);
+                console.log('Данные ответа:', error.response.data);
+            }
+            console.log('URL:', offerData.submitUrl);
             return false;
         }
     }
 
     async submitForm(offerData) {
         try {
-            console.log(`${getTimestamp()} ${chalk.blue.bold('🌐 ЗАПРОС:')} Отправка формы на ${offerData.submitUrl}`);
-            
             // Создаем FormData для отправки
             const form = new FormData();
             for (const [key, value] of Object.entries(offerData.formData)) {
@@ -123,7 +131,6 @@ class FunPayFormProcessor {
             if (!offerData.formData.form_created_at) {
                 const timestamp = Math.floor(Date.now() / 1000);
                 form.append('form_created_at', timestamp);
-                console.log(`${getTimestamp()} ${chalk.gray('ℹ')} Добавлен timestamp: ${chalk.yellow(timestamp)}`);
             }
 
             const response = await axios({
@@ -138,7 +145,7 @@ class FunPayFormProcessor {
                     'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
                     'Accept-Encoding': 'gzip, deflate, br',
                     'Origin': 'https://funpay.com',
-                    'Referer': offerData.submitUrl,
+                    'Referer': offerData.url,
                     'DNT': '1',
                     'Connection': 'keep-alive',
                     'Upgrade-Insecure-Requests': '1'
@@ -155,7 +162,6 @@ class FunPayFormProcessor {
             const exists = await this.checkOfferExists(offerData);
             
             if (exists) {
-                console.log(`${getTimestamp()} ${chalk.green.bold('✅ УСПЕХ:')} Предложение успешно добавлено и найдено на сайте`);
                 try {
                     await this.removeProcessedOffer(offerData.offer);
                 } catch (deleteError) {
@@ -166,26 +172,13 @@ class FunPayFormProcessor {
 
             return false;
         } catch (error) {
-            console.log('\n' + chalk.red('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'));
-            console.log(`${chalk.red('┃')}      ${chalk.red.bold('❌ ОШИБКА ЗАПРОСА')}                                             ${chalk.red('┃')}`);
-            console.log(chalk.red('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫'));
-            console.log(`${chalk.red('┃')}  ${getTimestamp()} ${chalk.white.bold(`Сообщение: ${chalk.red(error.message)}`)}                                    ${chalk.red('┃')}`);
-            
+            console.log('\nДетали ошибки:');
+            console.log('Сообщение:', error.message);
             if (error.response) {
-                console.log(`${chalk.red('┃')}  ${getTimestamp()} ${chalk.white.bold(`Статус: ${chalk.red(error.response.status)}`)}                                      ${chalk.red('┃')}`);
-                console.log(`${chalk.red('┃')}  ${getTimestamp()} ${chalk.white.bold(`URL: ${chalk.white(offerData.submitUrl)}`)}                          ${chalk.red('┃')}`);
-                
-                if (error.response.data) {
-                    console.log(chalk.red('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫'));
-                    console.log(`${chalk.red('┃')}  ${getTimestamp()} ${chalk.white.bold('Ответ сервера:')}                                                ${chalk.red('┃')}`);
-                    const responseText = typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data, null, 2);
-                    const responseLines = responseText.split('\n');
-                    for (const line of responseLines) {
-                        console.log(`${chalk.red('┃')}  ${chalk.white(line)}${' '.repeat(Math.max(0, 60 - line.length))}${chalk.red('┃')}`);
-                    }
-                }
+                console.log('Статус:', error.response.status);
+                console.log('Данные ответа:', error.response.data);
             }
-            console.log(chalk.red('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'));
+            console.log('URL:', offerData.submitUrl);
             return false;
         }
     }
@@ -208,21 +201,19 @@ class FunPayFormProcessor {
         );
 
         if (filteredOffers.length === 0) {
-            console.log('\n' + chalk.cyan('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'));
-            console.log(`${chalk.cyan('┃')}      ${chalk.red.bold('⛔ НЕТ ПОДХОДЯЩИХ ПРЕДЛОЖЕНИЙ')}                               ${chalk.cyan('┃')}`);
-            console.log(chalk.cyan('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫'));
-            console.log(`${chalk.cyan('┃')}  ${chalk.white.bold('Причины:')}                                                     ${chalk.cyan('┃')}`);
-            console.log(`${chalk.cyan('┃')}  ${chalk.red('• Нет офферов с node_id "1142" или "1560"')}                     ${chalk.cyan('┃')}`);
-            console.log(`${chalk.cyan('┃')}  ${chalk.red('• Отсутствие описания (descText)')}                             ${chalk.cyan('┃')}`);
-            console.log(`${chalk.cyan('┃')}  ${chalk.red('• Отсутствие цены (price)')}                                    ${chalk.cyan('┃')}`);
-            console.log(chalk.cyan('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'));
+            console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} Нет предложений для обработки`);
             return [];
         }
+
+        console.log(`${getTimestamp()} ${chalk.blue.bold('📦 НАЧАЛО ОБРАБОТКИ ПРЕДЛОЖЕНИЙ...')}`);
+        console.log(`${getTimestamp()} ${chalk.blue.bold(`Найдено новых предложений: ${chalk.yellow.bold(filteredOffers.length)}`)}\n`);
+        
+        let successCount = 0;
+        let failedCount = 0;
 
         // Переворачиваем массив для обработки с конца
         const reversedOffers = filteredOffers.reverse();
 
-        console.log(`${getTimestamp()} ${chalk.green.bold('✅ ГОТОВО:')} Загружено ${chalk.yellow.bold(reversedOffers.length)} предложений`);
         return reversedOffers;
 
     } catch (error) {
@@ -234,25 +225,17 @@ class FunPayFormProcessor {
     async processAllOffers() {
         const offers = await this.readOffersToAdd();
         if (!offers || offers.length === 0) {
-            console.log(`\n${getTimestamp()} ${chalk.red.bold('⛔ ОШИБКА:')} Нет предложений для обработки\n`);
+            console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} Нет предложений для обработки`);
             return;
         }
 
-        console.log('\n' + chalk.cyan('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-        console.log(`${chalk.cyan('┃')}      ${chalk.blue.bold('📦 НАЧАЛО ОБРАБОТКИ ПРЕДЛОЖЕНИЙ')}`);
-        console.log(chalk.cyan('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-        console.log(`${chalk.cyan('┃')}  ${getTimestamp()} ${chalk.blue.bold(`Найдено новых предложений: ${chalk.yellow.bold(offers.length)}`)}`);
-        console.log(chalk.cyan('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
+        let successCount = 0;
+        let failedCount = 0;
 
         for (let i = 0; i < offers.length; i++) {
             console.log(chalk.yellow('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
             console.log(`${chalk.yellow('┃')}      ${chalk.yellow.bold(`ПРЕДЛОЖЕНИЕ ${i + 1} ИЗ ${offers.length}`)}`);
             console.log(chalk.yellow('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Название:')} ${chalk.yellow(offers[i].title)}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Цена:')} ${chalk.yellow(offers[i].price)}`);
-            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ID:')} ${chalk.yellow(offers[i].node_id)}`);
-            console.log(chalk.yellow('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
-            console.log('');
 
             const template = getFormTemplate(offers[i].node_id);
             if (!template) {
@@ -266,64 +249,59 @@ class FunPayFormProcessor {
                 descEn: this.descEn
             });
 
-            console.log(`${getTimestamp()} ${chalk.blue.bold('🔄 ПРОЦЕСС:')} Отправка формы...`);
-            
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Название:')} ${chalk.yellow(offers[i].title)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Предложение:')} ${chalk.yellow(formData['fields[summary][ru]'] || 'Нет названия')}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('Цена:')} ${chalk.yellow(offers[i].price)}`);
+            console.log(`${chalk.yellow('┃')}  ${chalk.white.bold('ID:')} ${chalk.yellow(offers[i].node_id)}`);
+            console.log(chalk.yellow('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
+
             const success = await this.submitForm({
                 offer: offers[i],
                 formData,
-                cookies: this.config.cookies,
                 url: `https://funpay.com/lots/offerEdit?node=${offers[i].node_id}`,
                 submitUrl: 'https://funpay.com/lots/offerSave'
             });
             
             if (success) {
-                console.log(`${getTimestamp()} ${chalk.green.bold('✅ УСПЕХ:')} Предложение успешно добавлено`);
+                successCount++;
+                console.log('\n' + chalk.green('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+                console.log(`${chalk.green('┃')}      ${chalk.green.bold('УСПЕХ: Предложение успешно добавлено')}`);
+                console.log(chalk.green('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
             } else {
+                failedCount++;
                 // Выводим данные формы
                 console.log('\nОтправленные данные формы:');
                 for (const [key, value] of Object.entries(formData)) {
                     console.log(`${key}: ${value}`);
                 }
 
-                // Выводим сообщение об ошибке
                 console.log('\n' + chalk.red('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-                console.log(chalk.red('┃') + ' '.repeat(6) + chalk.red.bold('❗ ОШИБКА ДОБАВЛЕНИЯ'));
-                console.log(chalk.red('┃') + '  ' + getTimestamp() + ' ' + chalk.white.bold('Не удалось добавить предложение'));
+                console.log(`${chalk.red('┃')}      ${chalk.red.bold('ОШИБКА ДОБАВЛЕНИЯ')}`);
+                console.log(`${chalk.red('┃')}      ${chalk.white.bold('Не удалось добавить предложение')}`);
                 console.log(chalk.red('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
             }
 
             if (i < offers.length - 1) {
-                console.log(`\n${getTimestamp()} ${chalk.yellow('⏳')} Пауза 2 секунды...\n`);
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                console.log(`${getTimestamp()} ${chalk.blue.bold('⏳ ОЖИДАНИЕ:')} Пауза 5 секунд перед следующим предложением...\n`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
 
         console.log('\n' + chalk.green('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-        
-        // Функция для получения реальной длины строки без ANSI-кодов
-        const stripAnsi = str => str.replace(/\u001b\[\d+m/g, '');
-
-        // Первая строка
-        const line1 = ' '.repeat(6) + chalk.green.bold('✨ ОБРАБОТКА ЗАВЕРШЕНА');
-        console.log(chalk.green('┃') + line1);
-        
-        // Вторая строка
-        const line2 = '  ' + getTimestamp() + ' ' + chalk.white.bold(`Обработано предложений: ${chalk.yellow.bold(offers.length)}`);
-        console.log(chalk.green('┃') + line2);
-        
+        console.log(`${chalk.green('┃')}      ${chalk.green.bold('ОБРАБОТКА ЗАВЕРШЕНА')}`);
+        console.log(`${chalk.green('┃')}      ${chalk.white.bold(`Всего предложений: ${chalk.yellow.bold(offers.length)}`)}`);
+        console.log(`${chalk.green('┃')}      ${chalk.white.bold(`Успешно: ${chalk.green.bold(successCount)} ${chalk.white.bold('/')} Неудачно: ${chalk.red.bold(failedCount)}`)}`);
         console.log(chalk.green('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') + '\n');
     }
 
     async main() {
         try {
-            console.log(`${getTimestamp()} ${chalk.blue.bold('📦 НАЧАЛО ОБРАБОТКИ ПРЕДЛОЖЕНИЙ...')}`);
             const processor = new FunPayFormProcessor(
                 path.join(__dirname, '../differenceBetweenOffers/offers_to_add.json'),
                 path.join(__dirname, 'config.json')
             );
 
             await processor.processAllOffers();
-            console.log(`${getTimestamp()} ${chalk.green.bold('✅ ОБРАБОТКА ЗАВЕРШЕНА')}`);
         } catch (error) {
             console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} ${error.message}`);
         }
@@ -355,14 +333,12 @@ function extractFormCreatedAt(html) {
 if (import.meta.url.startsWith('file:')) {
     (async () => {
         try {
-            console.log(`${getTimestamp()} ${chalk.blue.bold('📦 НАЧАЛО ОБРАБОТКИ ПРЕДЛОЖЕНИЙ...')}`);
             const processor = new FunPayFormProcessor(
                 path.join(__dirname, '../differenceBetweenOffers/offers_to_add.json'),
                 path.join(__dirname, 'config.json')
             );
 
             await processor.processAllOffers();
-            console.log(`${getTimestamp()} ${chalk.green.bold('✅ ОБРАБОТКА ЗАВЕРШЕНА')}`);
         } catch (error) {
             console.log(`${getTimestamp()} ${chalk.red.bold('❌ ОШИБКА:')} ${error.message}`);
         }
