@@ -6,34 +6,21 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { getFormTemplate } from './form_templates_cfg.js';
 import chalk from 'chalk';
+import { getAuthData } from './funpay_auth.js';
+import { getTimestamp } from './utils/timestamp.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-function getTimestamp() {
-    const now = new Date();
-    const date = now.toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const time = now.toLocaleTimeString('ru-RU', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    return chalk.hex('#6CB6FF')(`[${date} ${time}]`);
-}
 
 class FunPayFormProcessor {
     constructor(offersPath, configPath) {
         this.offersPath = offersPath;
         this.configPath = configPath;
-        this.config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        this.config = {};
         
         // Чтение описаний из файлов при инициализации
-        this.descRu = fs.readFileSync(join(__dirname, 'desc_ru.txt'), 'utf-8').trim();
-        this.descEn = fs.readFileSync(join(__dirname, 'desc_en.txt'), 'utf-8').trim();
+        this.descRu = fs.readFileSync(path.join(__dirname, 'desc_ru.txt'), 'utf-8').trim();
+        this.descEn = fs.readFileSync(path.join(__dirname, 'desc_en.txt'), 'utf-8').trim();
     }
 
     static formatDescription(text) {
@@ -220,7 +207,21 @@ class FunPayFormProcessor {
     }
 }
 
+    async init() {
+        try {
+            this.config = JSON.parse(fs.readFileSync(this.configPath, 'utf8'));
+            const authData = await getAuthData(this.config.cookies);
+            this.config = {
+                ...this.config,
+                ...authData
+            };
+        } catch (error) {
+            throw new Error('НЕ УДАЛОСЬ ИНИЦИАЛИЗИРОВАТЬ ДАННЫЕ АВТОРИЗАЦИИ');
+        }
+    }
+
     async processAllOffers() {
+        await this.init();
         const offers = await this.readOffersToAdd();
         if (!offers || offers.length === 0) {
             console.log(`${getTimestamp()} ${chalk.yellow.bold('⚠ ВНИМАНИЕ:')} НЕТ ПРЕДЛОЖЕНИЙ ДЛЯ ОБРАБОТКИ`);
