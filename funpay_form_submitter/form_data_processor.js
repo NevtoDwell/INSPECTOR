@@ -179,7 +179,7 @@ class FunPayFormProcessor {
             // Фильтруем офферы только с node_id "1142" и "1560"
             const filteredOffers = offers.filter(o => 
                 (o.node_id === "1142" || o.node_id === "1560" || o.node_id === "965" || o.node_id === "1127" || o.node_id === "1130" || o.node_id === "1129" || o.node_id === "1135" || o.node_id === "1697" || o.node_id === "1755" || o.node_id === "609" || o.node_id === "1523" 
-                || o.node_id === "1476" || o.node_id === "1133"
+                || o.node_id === "1476" || o.node_id === "1133" || o.node_id === "1014" 
             ) && 
             o.descText && 
             o.price

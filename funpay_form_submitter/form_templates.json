@@ -32,11 +32,57 @@
   "965": {
     "csrf_token": "",
     "node_id": "",
-    "fields[topup]": "",
-    "fields[method]": "",
-    "fields[type]": "",
-    "fields[type2]": "",
-    "fields[brawlpass]": "",
+    "fields[quantity]": {
+      "90 алмазов": "90 алмазов",
+      "180 алмазов": "180 алмазов",
+      "500 алмазов": "500 алмазов",
+      "680 алмазов": "680 алмазов",
+      "1200 алмазов": "1200 алмазов",
+      "1700 алмазов": "1700 алмазов",
+      "2500 алмазов": "2500 алмазов",
+      "3700 алмазов": "3700 алмазов",
+      "6500 алмазов": "6500 алмазов",
+      "9000 алмазов": "9000 алмазов",
+      "14000 алмазов": "14000 алмазов",
+      "28000 алмазов": "28000 алмазов",
+      "Другое количество": "Другое количество"
+    },
+    "fields[desc][ru]": "",
+    "fields[desc][en]": "",
+    "amount": "",
+    "active": "",
+    "price": ""
+  },
+  "1014": {
+    "csrf_token": "",
+    "node_id": "",
+    "fields[region]": {
+      "RU": "RU",
+      "UA": "UA",
+      "EU": "EU",
+      "NA": "NA",
+      "Другой регион": "Другой регион"
+    },
+    "fields[method]": {
+      "С заходом на аккаунт": "С заходом на аккаунт",
+      "Без захода на аккаунт": "Без захода на аккаунт"
+    },
+    "fields[quantity]": {
+      "425+ WC": "425+ WC",
+      "1000+ WC": "1000+ WC",
+      "1850+ WC": "1850+ WC",
+      "3275+ WC": "3275+ WC",
+      "3700+ WC": "3700+ WC",
+      "4800+ WC": "4800+ WC",
+      "5800+ WC": "5800+ WC",
+      "6650+ WC": "6650+ WC",
+      "7650+ WC": "7650+ WC",
+      "8470+ WC": "8470+ WC",
+      "10000+ WC": "10000+ WC",
+      "10480+ WC": "10480+ WC",
+      "14800+ WC": "14800+ WC",
+      "20000+ WC": "20000+ WC"
+    },
     "fields[summary][ru]": "",
     "fields[summary][en]": "",
     "fields[desc][ru]": "",
@@ -48,11 +94,30 @@
   "1127": {
     "csrf_token": "",
     "node_id": "",
-    "fields[topup]": "",
-    "fields[method]": "",
-    "fields[type]": "",
-    "fields[type2]": "",
-    "fields[brawlpass]": "",
+    "fields[method]": {
+      "Пополнение по ID": "Пополнение по ID",
+      "С заходом на аккаунт": "С заходом на аккаунт",
+      "Подарком": "Подарком"
+    },
+    "fields[type]": {
+      "Brawl Pass": "Brawl Pass",
+      "Бойцы": "Бойцы",
+      "Скины": "Скины",
+      "Боец + скин": "Боец + скин",
+      "Значки": "Значки",
+      "Ресурсы": "Ресурсы",
+      "Особая акция": "Особая акция",
+      "Прочее": "Прочее"
+    },
+    "fields[type2]": {
+      "Официально (рекомендуется)": "Официально (рекомендуется)",
+      "Прочее": "Прочее"
+    },
+    "fields[brawlpass]": {
+      "Brawl Pass": "Brawl Pass",
+      "Brawl Pass Plus": "Brawl Pass Plus",
+      "Улучшение до Brawl Pass Plus": "Улучшение до Brawl Pass Plus"
+    },
     "fields[summary][ru]": "",
     "fields[summary][en]": "",
     "fields[desc][ru]": "",
@@ -83,18 +148,23 @@
   "1130": {
     "csrf_token": "",
     "node_id": "",
-    "fields[topup]": "",
-    "fields[method]": "",
-    "fields[type]": "",
-    "fields[type2]": "",
-    "fields[brawlpass]": "",
+    "fields[method]": {
+      "Пополнение по ID": "Пополнение по ID",
+      "С заходом на аккаунт": "С заходом на аккаунт"
+    },
+    "fields[type]": {
+      "Pass Royale": "Pass Royale",
+      "Наборы": "Наборы",
+      "Акции": "Акции",
+      "Другое": "Другое"
+    },
     "fields[summary][ru]": "",
     "fields[summary][en]": "",
     "fields[desc][ru]": "",
     "fields[desc][en]": "",
+    "amount": "",
     "active": "",
-    "price": "",
-    "deactivate_after_sale": ""
+    "price": ""
   },
   "1133": {
     "csrf_token": "",
@@ -136,18 +206,17 @@
   "1142": {
     "csrf_token": "",
     "node_id": "",
-    "fields[topup]": "",
-    "fields[method]": "",
-    "fields[type]": "",
-    "fields[type2]": "",
-    "fields[brawlpass]": "",
+    "fields[type]": {
+      "Паки": "Паки",
+      "Карты": "Карты"
+    },
     "fields[summary][ru]": "",
     "fields[summary][en]": "",
     "fields[desc][ru]": "",
     "fields[desc][en]": "",
+    "amount": "",
     "active": "",
-    "price": "",
-    "deactivate_after_sale": ""
+    "price": ""
   },
   "1465": {
     "csrf_token": "",
@@ -241,11 +310,16 @@
   "1560": {
     "csrf_token": "",
     "node_id": "",
-    "fields[topup]": "",
-    "fields[method]": "",
-    "fields[type]": "",
-    "fields[type2]": "",
-    "fields[brawlpass]": "",
+    "server_id": {
+      "9072": "Asphalt Nitro",
+      "9073": "Asphalt Xtreme",
+      "9074": "Asphalt Legends Unite",
+      "9075": "Asphalt 8"
+    },
+    "fields[method]": {
+      "Пополнение по ID": "Пополнение по ID",
+      "С заходом на аккаунт": "С заходом на аккаунт"
+    },
     "fields[summary][ru]": "",
     "fields[summary][en]": "",
     "fields[desc][ru]": "",

@@ -35,7 +35,9 @@ export function calculatePrice(categoryId, originalPrice) {
         case "1476": // STUBMLE GUYS
             return Math.round(price /  1.099);
         case "1133": // LEAGUE LEGEND
-            return Math.round(price /  1,171);
+            return Math.round(price /  1.171);
+        case "1014": // LEAGUE LEGEND
+            return Math.round(price /  1.171);    
         default:
             // По умолчанию возвращаем оригинальную цену
             return price;

@@ -29,6 +29,7 @@ async function getFormMetadata(categoryId, cookies) {
                 const template = {
                     "csrf_token": "",
                     "node_id": "",
+                    "fields[region]": "",
                     "fields[topup]": "",
                     "fields[method]": "",
                     "fields[type]": "",
@@ -91,6 +92,7 @@ async function getFormMetadata(categoryId, cookies) {
             "fields[topup]": "",
             "fields[method]": "",
             "fields[type]": "",
+            "fields[region]": "",
             "fields[type2]": "",
             "fields[brawlpass]": "",
             "fields[summary][ru]": "",
@@ -199,15 +201,14 @@ function delay(ms) {
 async function main() {
     try {
         // Читаем конфигурацию
-        const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
-        const cookies = config.cookies;
+        const cookies = fs.readFileSync(path.join(__dirname, 'auth_golden_key.config'), 'utf8').trim();
 
         // Читаем офферы из файла
         const offersData = JSON.parse(fs.readFileSync(path.join(__dirname, '../differenceBetweenOffers/user_2.json'), 'utf8'));
 
         // Фильтруем только нужные категории и убираем дубликаты
         const categories = [...new Set(offersData
-            .filter(offer => ["1127", "1142", "1560", "965", "1130", "1129", "1135", "1697", "1755", "609", "1486", "1523", "1476", "1133"].includes(offer.node_id))
+            .filter(offer => ["1127", "1142", "1560", "965", "1130", "1129", "1135", "1697", "1755", "609", "1486", "1523", "1476", "1133", "1014"].includes(offer.node_id))
             .map(offer => offer.node_id))]
             .map(id => ({
                 id: id,
@@ -251,6 +252,7 @@ async function main() {
                 'node_id',
                 'server_id',
                 'side_id',
+                "fields[region]",
                 'fields[topup]',
                 'fields[method]',
                 'fields[game]',
