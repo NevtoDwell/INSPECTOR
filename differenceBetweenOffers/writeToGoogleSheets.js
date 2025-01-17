@@ -121,9 +121,14 @@ async function formatHeaders(sheets, sheetId, endColumnIndex) {
 
 function formatPrice(price) {
   if (!price) return '';
-  // Извлекаем только числа из строки
-  const number = price.toString().replace(/[^\d.]/g, '');
-  return parseFloat(number);
+  // Проверяем, является ли цена строкой
+  const priceStr = price.toString();
+  // Сохраняем знак минуса, если он есть
+  const isNegative = priceStr.startsWith('-');
+  // Извлекаем числа из строки, сохраняя точку
+  const number = priceStr.replace(/[^\d.]/g, '');
+  // Возвращаем число с правильным знаком
+  return isNegative ? -parseFloat(number) : parseFloat(number);
 }
 
 async function writeToGoogleSheets() {
@@ -424,7 +429,7 @@ async function writeToGoogleSheets() {
             endIndex: columnCount
           },
           properties: {
-            pixelSize: 250
+            pixelSize: 150
           },
           fields: 'pixelSize'
         }

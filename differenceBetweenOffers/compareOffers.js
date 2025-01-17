@@ -60,7 +60,7 @@ function findUniqueDifferences(array1, array2) {
     if (matchingItem) {
       const price1 = parsePrice(item1.price);
       const price2 = parsePrice(matchingItem.price);
-      const priceDifference = Math.abs(price1 - price2).toFixed(2);
+      const priceDifference = (price1 - price2).toFixed(2);
 
       differences.push({
         differenceType: cleanedDesc1 === cleanText(matchingItem.descText) ? '✅✅✅ SAME' : '❌❌❌ DIFFERENT',
