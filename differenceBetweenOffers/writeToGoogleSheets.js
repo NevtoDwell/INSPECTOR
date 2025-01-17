@@ -338,8 +338,8 @@ async function writeToGoogleSheets() {
         });
       }
 
-      // Подсветка большой разницы в цене
-      if (row[5] && parseFloat(row[5]) > 100) {
+      // Подсветка отрицательной разницы в цене
+      if (row[5] && parseFloat(row[5]) < 0) {
         allRequests.push({
           repeatCell: {
             range: {
@@ -358,6 +358,35 @@ async function writeToGoogleSheets() {
                   bold: true,
                   foregroundColor: { red: 1, green: 1, blue: 1 },
                 },
+                horizontalAlignment: 'RIGHT',
+                verticalAlignment: 'MIDDLE'
+              }
+            },
+            fields: 'userEnteredFormat'
+          }
+        });
+      }
+      // Подсветка разницы больше 30
+      else if (row[5] && parseFloat(row[5]) > 30) {
+        allRequests.push({
+          repeatCell: {
+            range: {
+              sheetId: differenceSheet.properties.sheetId,
+              startRowIndex: rowIndex,
+              endRowIndex: rowIndex + 1,
+              startColumnIndex: 5,
+              endColumnIndex: 6,
+            },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: { red: 1, green: 0.93, blue: 0.6 }, // Желтый цвет
+                textFormat: {
+                  fontFamily: 'Roboto',
+                  fontSize: 10,
+                  bold: true,
+                },
+                horizontalAlignment: 'RIGHT',
+                verticalAlignment: 'MIDDLE'
               }
             },
             fields: 'userEnteredFormat'
